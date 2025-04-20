@@ -73,8 +73,9 @@ jobs:
         with:
           args: ${{ matrix.args }}
 
-      - name: Convert artifact paths to relative and split
-        id: relpath
+      - name: Convert artifact paths to relative and split (Unix)
+        if: runner.os != 'Windows'
+        id: relpath_unix
         run: |
           REL_PATHS=$(echo '${{ steps.tauri.outputs.artifactPaths }}' | jq -r '.[]' | sed "s#${{ github.workspace }}/##")
           echo "$REL_PATHS"
@@ -82,9 +83,22 @@ jobs:
           echo "$REL_PATHS" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
+      - name: Convert artifact paths to relative and split (Windows)
+        if: runner.os == 'Windows'
+        id: relpath_win
+        shell: pwsh
+        run: |
+          $paths = '${{ steps.tauri.outputs.artifactPaths }}' | ConvertFrom-Json
+          $relPaths = $paths | ForEach-Object { $_ -replace [regex]::Escape("${{ github.workspace }}\"), "" }
+          $relPathsString = $relPaths -join "`n"
+          Write-Host $relPathsString
+          "REL_PATHS<<EOF" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          $relPathsString | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          "EOF" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
       - name: Upload Tauri Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.args != '' && format('tauri-artifacts-{0}-{1}', matrix.platform, matrix.args) || format('tauri-artifacts-{0}', matrix.platform) }}
           path: |
-            ${{ steps.relpath.outputs.REL_PATHS }}
+            ${{ runner.os == 'Windows' && steps.relpath_win.outputs.REL_PATHS || steps.relpath_unix.outputs.REL_PATHS }}
