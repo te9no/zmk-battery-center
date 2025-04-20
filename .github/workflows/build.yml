@@ -60,7 +60,8 @@ jobs:
       - name: Convert artifact paths to relative and split
         id: relpath
         run: |
-          echo "REL_PATHS=$(echo '${{ steps.tauri.outputs.artifactPaths }}' | tr ',' '\n' | sed \"s#${{ github.workspace }}/##\" | xargs)" >> $GITHUB_OUTPUT
+          REL_PATHS=$(echo '${{ steps.tauri.outputs.artifactPaths }}' | jq -r '.[]' | sed "s#${{ github.workspace }}/##" | xargs)
+          echo "REL_PATHS=$REL_PATHS" >> $GITHUB_OUTPUT
 
       - name: Upload Tauri Artifacts
         uses: actions/upload-artifact@v4
