@@ -1,0 +1,46 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "zmk-battery-center",
+  "version": "0.1.0",
+  "identifier": "com.zmk-battery-center.app",
+  "build": {
+    "beforeDevCommand": "bun run dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "bun run build:ui",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "zmk-battery-center",
+        "width": 300,
+        "height": 300,
+        "visible": false,
+        "decorations": false,
+        "skipTaskbar": true,
+        "shadow": true,
+        "resizable": false,
+        "center": true
+      }
+    ],
+    "trayIcon": {
+      "id": "tray_icon",
+      "iconPath": "icons/zmk_logo.png",
+      "tooltip": "zmk-battery-center"
+    },
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  }
+}
