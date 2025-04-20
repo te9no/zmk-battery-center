@@ -1,6 +1,8 @@
 name: "build"
 
 on:
+  workflow_dispatch:
+  pull_request:
   push:
     paths-ignore:
       - '*.md'
@@ -74,12 +76,15 @@ jobs:
       - name: Convert artifact paths to relative and split
         id: relpath
         run: |
-          REL_PATHS=$(echo '${{ steps.tauri.outputs.artifactPaths }}' | jq -r '.[]' | sed "s#${{ github.workspace }}/##" | xargs)
-          echo $REL_PATHS
-          echo "REL_PATHS=$REL_PATHS" >> $GITHUB_OUTPUT
+          REL_PATHS=$(echo '${{ steps.tauri.outputs.artifactPaths }}' | jq -r '.[]' | sed "s#${{ github.workspace }}/##")
+          echo "$REL_PATHS"
+          echo "REL_PATHS<<EOF" >> $GITHUB_OUTPUT
+          echo "$REL_PATHS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Upload Tauri Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: tauri-artifacts-${{ matrix.platform }}
-          path: ${{ steps.relpath.outputs.REL_PATHS }}
+          path: |
+            ${{ steps.relpath.outputs.REL_PATHS }}
