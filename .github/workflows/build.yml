@@ -61,6 +61,7 @@ jobs:
         id: relpath
         run: |
           REL_PATHS=$(echo '${{ steps.tauri.outputs.artifactPaths }}' | jq -r '.[]' | sed "s#${{ github.workspace }}/##" | xargs)
+          echo $REL_PATHS
           echo "REL_PATHS=$REL_PATHS" >> $GITHUB_OUTPUT
 
       - name: Upload Tauri Artifacts
