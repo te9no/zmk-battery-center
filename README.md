@@ -32,4 +32,4 @@ A system tray app to monitor battery status of zmk-based keyboards.
 ## Reference
 - [zmk-ble](https://github.com/Katona/zmk-ble): PoC tray app for macOS
 - [zmk-split-battery](https://github.com/Maksim-Isakau/zmk-split-battery): Tray app for Windows
-- [ZMK PR#1243](https://github.com/zmkfirmware/zmk/pull/1243): Implementation and discussion for split battery reporting over BLE GATT
+- ZMK PR [#1243](https://github.com/zmkfirmware/zmk/pull/1243), [#2045](https://github.com/zmkfirmware/zmk/pull/2045): Implementation and discussion for split battery reporting over BLE GATT
