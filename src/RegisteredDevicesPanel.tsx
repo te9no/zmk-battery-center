@@ -48,6 +48,7 @@ const RegisteredDevicesPanel: React.FC<DeviceListProps> = ({
 										className="w-full text-left px-4 py-2 hover:bg-gray-800 rounded-t-lg"
 										onClick={() => { if (idx > 0) { setRegisteredDevices(prev => { const arr = [...prev]; [arr[idx-1], arr[idx]] = [arr[idx], arr[idx-1]]; return arr; }); } handleMenuClose(); }}
 										disabled={idx === 0}
+										style={{ opacity: idx === 0 ? 0.5 : 1, cursor: idx === 0 ? 'not-allowed' : 'pointer' }}
 									>
 										Move Up
 									</button>
@@ -55,6 +56,7 @@ const RegisteredDevicesPanel: React.FC<DeviceListProps> = ({
 										className="w-full text-left px-4 py-2 hover:bg-gray-800"
 										onClick={() => { if (idx < registeredDevices.length - 1) { setRegisteredDevices(prev => { const arr = [...prev]; [arr[idx+1], arr[idx]] = [arr[idx], arr[idx+1]]; return arr; }); } handleMenuClose(); }}
 										disabled={idx === registeredDevices.length - 1}
+										style={{ opacity: idx === registeredDevices.length - 1 ? 0.5 : 1, cursor: idx === registeredDevices.length - 1 ? 'not-allowed' : 'pointer' }}
 									>
 										Move Down
 									</button>
