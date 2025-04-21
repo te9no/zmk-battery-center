@@ -2,7 +2,7 @@ import "./App.css";
 import { listBatteryDevices, getBatteryInfo, BleDeviceInfo, BatteryInfo } from "./ble";
 import { useState, useEffect, useRef } from "react";
 import Button from "./Button";
-import BatteryIcon from "./BatteryIcon";
+import RegisteredDevicesPanel from "./RegisteredDevicesPanel";
 
 /**
  * DeviceListModalのProps型
@@ -216,39 +216,13 @@ function App() {
 				</div>
 			) : (
 				<main className="container mx-auto pt-10">
-					<div className="grid gap-3 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-						{registeredDevices.map((id) => {
-							const info = batteryInfos[id] || [];
-							return (
-								<div key={id} className="group rounded-lg shadow-lg p-4 flex flex-col gap-2 relative">
-									{/* 削除ボタン */}
-									<button
-										className="absolute top-2 right-2 p-0.5 text-gray-400 hover:text-red-500 text-xl font-bold focus:outline-none opacity-0 group-hover:opacity-100 transition-opacity"
-										onClick={() => handleRemoveDevice(id)}
-										aria-label="Remove Device"
-									>
-										×
-									</button>
-									<div className="flex flex-row justify-center px-4 py-2 gap-2">
-										<span className="w-[60px] min-w-[60px] text-base font-semibold">{devices.find(d => d.id === id)?.name}</span>
-										<div className="flex flex-col gap-1 flex-1">
-											{info.length === 0 ? (
-												<div className="text-gray-400">No battery information</div>
-											) : (
-												info.map((b, idx) => (
-													<div key={idx} className="flex gap-1 justify-center">
-														<span className="text-sm text-gray-300 w-20 min-w-[80px]">{b.user_descriptor ?? "Central"}</span>
-														<BatteryIcon percentage={b.battery_level ?? 0} size={22} />
-														<span className="w-[35px] min-w-[35px] text-right text-sm">{b.battery_level !== null ? `${b.battery_level}%` : "N/A"}</span>
-													</div>
-												))
-											)}
-										</div>
-									</div>
-								</div>
-							);
-						})}
-					</div>
+					<RegisteredDevicesPanel
+						registeredDevices={registeredDevices}
+						devices={devices}
+						batteryInfos={batteryInfos}
+						setRegisteredDevices={setRegisteredDevices}
+						handleRemoveDevice={handleRemoveDevice}
+					/>
 				</main>
 			)}
 		</div>
