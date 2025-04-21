@@ -89,6 +89,8 @@ function App() {
 	const [devices, setDevices] = useState<BleDeviceInfo[]>([]);
 	// バッテリー情報: { [deviceId]: BatteryInfo[] }
 	const [batteryInfos, setBatteryInfos] = useState<Record<string, BatteryInfo[]>>({});
+	// 切断状態: { [deviceId]: boolean }
+	const [disconnected, setDisconnected] = useState<Record<string, boolean>>({});
 	// モーダル表示状態
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	// ローディング・エラー
@@ -139,17 +141,18 @@ function App() {
 		}
 	}
 
-	// バッテリー情報取得
-	async function fetchAndSetBatteryInfo(id: string) {
-		setIsLoading(true);
-		setError("");
+	// バッテリー情報取得（リトライ付き）
+	async function fetchAndSetBatteryInfoWithRetry(id: string, retry = 0) {
 		try {
 			const info = await getBatteryInfo(id);
 			setBatteryInfos((prev) => ({ ...prev, [id]: Array.isArray(info) ? info : [info] }));
+			setDisconnected((prev) => ({ ...prev, [id]: false }));
 		} catch (e: any) {
-			setError(e.toString());
-		} finally {
-			setIsLoading(false);
+			if (retry < 3) {
+				setTimeout(() => fetchAndSetBatteryInfoWithRetry(id, retry + 1), 1000); // 1秒後にリトライ
+			} else {
+				setDisconnected((prev) => ({ ...prev, [id]: true }));
+			}
 		}
 	}
 
@@ -157,7 +160,9 @@ function App() {
 	const handleAddDevice = async (id: string) => {
 		if (!registeredDevices.includes(id)) {
 			setRegisteredDevices((prev) => [...prev, id]);
-			await fetchAndSetBatteryInfo(id);
+			setIsLoading(true);
+			await fetchAndSetBatteryInfoWithRetry(id);
+			setIsLoading(false);
 		}
 		setIsModalOpen(false);
 	};
@@ -169,6 +174,11 @@ function App() {
 			const newInfo = { ...prev };
 			delete newInfo[id];
 			return newInfo;
+		});
+		setDisconnected((prev) => {
+			const newState = { ...prev };
+			delete newState[id];
+			return newState;
 		});
 	};
 
@@ -184,7 +194,24 @@ function App() {
 		await fetchDevices();
 	};
 
-	// 初回は何もしない
+	// 一定時間ごとにバッテリー情報を更新
+	useEffect(() => {
+		if (registeredDevices.length === 0) return;
+		let isUnmounted = false;
+		const interval = setInterval(() => {
+			registeredDevices.forEach((id) => {
+				if (!isUnmounted) fetchAndSetBatteryInfoWithRetry(id);
+			});
+		}, 10000);
+		// 初回も取得
+		registeredDevices.forEach((id) => {
+			if (!isUnmounted) fetchAndSetBatteryInfoWithRetry(id);
+		});
+		return () => {
+			isUnmounted = true;
+			clearInterval(interval);
+		};
+	}, [registeredDevices]);
 
 	// UI
 	return (
@@ -222,8 +249,18 @@ function App() {
 						batteryInfos={batteryInfos}
 						setRegisteredDevices={setRegisteredDevices}
 						handleRemoveDevice={handleRemoveDevice}
+						disconnected={disconnected}
 					/>
 				</main>
+			)}
+			{/* Add Deviceでデバイス選択後のローディング表示 */}
+			{isLoading && (
+				<div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-950 bg-opacity-60">
+					<div className="bg-gray-900 rounded-lg shadow-lg p-8 flex flex-col items-center">
+						<div className="loader border-4 border-blue-500 border-t-transparent rounded-full w-10 h-10 animate-spin mb-4"></div>
+						<span className="text-white">バッテリー情報を取得中...</span>
+					</div>
+				</div>
 			)}
 		</div>
 	);

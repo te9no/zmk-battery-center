@@ -8,6 +8,7 @@ interface DeviceListProps {
 	batteryInfos: Record<string, BatteryInfo[]>;
 	setRegisteredDevices: React.Dispatch<React.SetStateAction<string[]>>;
 	handleRemoveDevice: (id: string) => void;
+	disconnected: Record<string, boolean>;
 }
 
 const RegisteredDevicesPanel: React.FC<DeviceListProps> = ({
@@ -16,6 +17,7 @@ const RegisteredDevicesPanel: React.FC<DeviceListProps> = ({
 	batteryInfos,
 	setRegisteredDevices,
 	handleRemoveDevice,
+	disconnected,
 }) => {
 	const [menuOpen, setMenuOpen] = useState<string | null>(null);
 	const handleMenuOpen = (id: string) => setMenuOpen(id);
@@ -75,16 +77,23 @@ const RegisteredDevicesPanel: React.FC<DeviceListProps> = ({
 						)}
 						{/* デバイス情報 */}
 						<div className="flex flex-row justify-center px-4 py-2 gap-2">
-							<span className="w-[60px] min-w-[60px] text-base font-semibold">{devices.find(d => d.id === id)?.name}</span>
+							<div className="flex flex-col items-start min-w-[60px] w-[60px]">
+								<span className="text-base font-semibold">{devices.find(d => d.id === id)?.name}</span>
+								{disconnected[id] && (
+									<span className="text-xs text-red-400 mt-1">disconnected</span>
+								)}
+							</div>
 							<div className="flex flex-col gap-1 flex-1">
 								{info.length === 0 ? (
 									<div className="text-gray-400">No battery information</div>
 								) : (
 									info.map((b, idx) => (
-										<div key={idx} className="flex gap-1 justify-center">
-											<span className="text-sm text-gray-300 w-20 min-w-[80px]">{b.user_descriptor ?? "Central"}</span>
-											<BatteryIcon percentage={b.battery_level ?? 0} size={22} />
-											<span className="w-[35px] min-w-[35px] text-right text-sm">{b.battery_level !== null ? `${b.battery_level}%` : "N/A"}</span>
+										<div key={idx} className="flex flex-col gap-0.5 justify-center items-start">
+											<div className="flex gap-1 items-center">
+												<span className="text-sm text-gray-300 w-20 min-w-[80px]">{b.user_descriptor ?? "Central"}</span>
+												<BatteryIcon percentage={b.battery_level ?? 0} size={22} />
+												<span className="w-[35px] min-w-[35px] text-right text-sm">{b.battery_level !== null ? `${b.battery_level}%` : "N/A"}</span>
+											</div>
 										</div>
 									))
 								)}
