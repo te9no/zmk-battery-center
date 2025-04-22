@@ -30,6 +30,7 @@ A system tray app to monitor battery status of zmk-based keyboards.
 - If you are on macOS, make sure the Bluetooth permission is granted.
 
 ## Reference
-- [zmk-ble](https://github.com/Katona/zmk-ble): PoC tray app for macOS
-- [zmk-split-battery](https://github.com/Maksim-Isakau/zmk-split-battery): Tray app for Windows
 - ZMK PR [#1243](https://github.com/zmkfirmware/zmk/pull/1243), [#2045](https://github.com/zmkfirmware/zmk/pull/2045): Implementation and discussion for split battery reporting over BLE GATT
+- [zmk-ble](https://github.com/Katona/zmk-ble): PoC system tray app for macOS (does not work on latest macOS)
+- [Mighty-Mitts](https://github.com/codyd51/Mighty-Mitts): System tray app for macOS
+- [zmk-split-battery](https://github.com/Maksim-Isakau/zmk-split-battery): System tray app for Windows
