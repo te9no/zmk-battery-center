@@ -7,7 +7,6 @@ A system tray app to monitor the battery level of ZMK-based keyboards, built wit
   - Both central and peripheral sides of split keyboards
   - Multiple keyboards simultaneously
 - Supports macOS and Windows
-  - Linux may be compatible, but not tested
 
 ## Usage
 
