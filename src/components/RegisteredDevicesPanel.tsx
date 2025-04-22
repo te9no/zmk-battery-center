@@ -37,9 +37,11 @@ const RegisteredDevicesPanel: React.FC<DeviceListProps> = ({
 							</button>
 							{/* メニュー */}
 							{menuOpen === device.id && (
-								<div className="absolute right-0 mt-2 w-36 bg-gray-900 border border-gray-700 rounded-lg shadow-lg z-10">
+								<div
+									className={`absolute right-0 w-24 bg-gray-900 text-sm border border-gray-700 rounded-lg shadow-lg z-10 ${idx >= registeredDevices.length - 1 ? 'translate-y-[-60%]' : ''}`}
+								>
 									<button
-										className="w-full text-left px-4 py-2 hover:bg-gray-800 rounded-t-lg"
+										className="w-full text-left px-2 py-1 hover:bg-gray-800 rounded-t-lg"
 										onClick={() => { if (idx > 0) { setRegisteredDevices(prev => { const arr = [...prev]; [arr[idx-1], arr[idx]] = [arr[idx], arr[idx-1]]; return arr; }); } handleMenuClose(); }}
 										disabled={idx === 0}
 										style={{ opacity: idx === 0 ? 0.5 : 1, cursor: idx === 0 ? 'not-allowed' : 'pointer' }}
@@ -47,7 +49,7 @@ const RegisteredDevicesPanel: React.FC<DeviceListProps> = ({
 										Move Up
 									</button>
 									<button
-										className="w-full text-left px-4 py-2 hover:bg-gray-800"
+										className="w-full text-left px-2 py-1 hover:bg-gray-800"
 										onClick={() => { if (idx < registeredDevices.length - 1) { setRegisteredDevices(prev => { const arr = [...prev]; [arr[idx+1], arr[idx]] = [arr[idx], arr[idx+1]]; return arr; }); } handleMenuClose(); }}
 										disabled={idx === registeredDevices.length - 1}
 										style={{ opacity: idx === registeredDevices.length - 1 ? 0.5 : 1, cursor: idx === registeredDevices.length - 1 ? 'not-allowed' : 'pointer' }}
@@ -55,7 +57,7 @@ const RegisteredDevicesPanel: React.FC<DeviceListProps> = ({
 										Move Down
 									</button>
 									<button
-										className="w-full text-left px-4 py-2 text-red-500 hover:bg-gray-800 rounded-b-lg"
+										className="w-full text-left px-2 py-1 text-red-500 hover:bg-gray-800 rounded-b-lg"
 										onClick={() => { setRegisteredDevices(prev => prev.filter(d => d.id !== device.id)); handleMenuClose(); }}
 									>
 										Delete
