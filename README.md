@@ -1,40 +1,40 @@
 # zmk-battery-center
 
-A system tray app to monitor battery level of zmk-based keyboards.
+A system tray app to monitor the battery level of ZMK-based keyboards, built with [Tauri v2](https://v2.tauri.app/).
 
-## ✨Features
-- Show battery level of
-  - both central and peripheral for split keyboards
-  - multiple keyboards
-- Cross-platform(macOS, Windows)
-  - Perhaps also compatible with Linux, but not tested
+## ✨ Features
+- Display battery level for:
+  - Both central and peripheral sides of split keyboards
+  - Multiple keyboards simultaneously
+- Supports macOS and Windows
+  - Linux may be compatible, but not tested
 
 ## Usage
 
-1. Download the latest release from [Releases](https://github.com/kot149/zmk-battery-center/releases).
-2. Install/execute the app
-3. Click the icon in system tray
-4. Click `Add Device` button and select your keyboard
-   - Grant the Bluetooth permission if you are on macOS
+1. Download the latest release from the [Releases](https://github.com/kot149/zmk-battery-center/releases) page.
+2. Install or run the app on your system.
+3. Click the icon in your system tray to open the app menu.
+4. Click the `Add Device` button and select your keyboard from the list.
+   - On macOS, grant Bluetooth permissions if prompted.
 
-## Trouble Shooting
+## Troubleshooting
 
 ### My keyboard does not show up
 
-- Make sure your keyboard is connected to your computer via Bluetooth.
-- Make sure your keyboard has the following ZMK configs enabled:
+- Ensure your keyboard is connected to your computer via Bluetooth.
+- Confirm your keyboard firmware includes the following ZMK configuration options:
   ```kconfig
   CONFIG_ZMK_BATTERY_REPORTING=y
-  # for split keyboards:
+  # For split keyboards:
   CONFIG_ZMK_SPLIT_BLE_CENTRAL_BATTERY_LEVEL_FETCHING=y
   CONFIG_ZMK_SPLIT_BLE_CENTRAL_BATTERY_LEVEL_PROXY=y
   ```
-  Refer to [ZMK Docs](https://zmk.dev/docs/config/battery) for more details.
-- If you are on macOS, make sure the Bluetooth permission is granted.
+  See the [ZMK Battery Documentation](https://zmk.dev/docs/config/battery) for more details.
+- On macOS, make sure Bluetooth permissions are granted to the app.
 
-## Reference
-- ZMK PR [#1243](https://github.com/zmkfirmware/zmk/pull/1243), [#2045](https://github.com/zmkfirmware/zmk/pull/2045): Implementation and discussion for split battery reporting over BLE GATT
-- [zmk-ble](https://github.com/Katona/zmk-ble): PoC system tray app for macOS (does not work on latest macOS)
+## References
+- ZMK PR [#1243](https://github.com/zmkfirmware/zmk/pull/1243), [#2045](https://github.com/zmkfirmware/zmk/pull/2045) — Implementation and discussion for split battery reporting over BLE GATT
+- [zmk-ble](https://github.com/Katona/zmk-ble): Proof-of-concept system tray app for macOS (not compatible with latest macOS)
 - [Mighty-Mitts](https://github.com/codyd51/Mighty-Mitts): System tray app for macOS
 - [zmk-split-battery](https://github.com/Maksim-Isakau/zmk-split-battery): System tray app for Windows
 - [zmkBATx](https://github.com/mh4x0f/zmkBATx): System tray app for Linux
