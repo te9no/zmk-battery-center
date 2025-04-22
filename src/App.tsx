@@ -220,7 +220,7 @@ function App() {
 
 	// UI
 	return (
-		<div id="app" className="bg-gray-950 text-white relative min-w-[300px] p-2">
+		<div id="app" className="text-white relative min-w-[300px] p-2">
 			{/* 右上+ボタン */}
 			<Button
 				className="absolute top-2 right-2 w-10 h-10 rounded-lg bg-transparent hover:bg-gray-700 flex items-center justify-center text-2xl shadow-lg text-white"
@@ -256,7 +256,7 @@ function App() {
 			)}
 			{/* Add Deviceでデバイス選択後のローディング表示 */}
 			{isBatteryLoading && (
-				<div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-950 bg-opacity-60">
+				<div className="fixed inset-0 z-50 flex items-center justify-center bg-opacity-60">
 					<div className="bg-gray-900 rounded-lg shadow-lg p-8 flex flex-col items-center">
 						<div className="loader border-4 border-blue-500 border-t-transparent rounded-full w-10 h-10 animate-spin mb-4"></div>
 						<span className="text-white">Fetching battery info...</span>
