@@ -5,7 +5,7 @@ import Button from "./components/Button";
 import RegisteredDevicesPanel from "./components/RegisteredDevicesPanel";
 // @ts-ignore 'printRust' is declared but its value is never read.
 import { printRust, sleep } from "./utils/common";
-
+import { resizeWindowToContent } from "./utils/window";
 export type RegisteredDevice = {
 	id: string;
 	name: string;
@@ -178,6 +178,11 @@ function App() {
 		await fetchDevices();
 	};
 
+	// ウィンドウサイズ変更
+	useEffect(() => {
+		resizeWindowToContent();
+	}, [registeredDevices, isModalOpen]);
+
 	// 一定時間ごとにバッテリー情報を更新
 	useEffect(() => {
 		let isUnmounted = false;
@@ -215,7 +220,7 @@ function App() {
 
 	// UI
 	return (
-		<div className="min-h-screen bg-gray-950 text-white relative">
+		<div id="app" className="bg-gray-950 text-white relative min-w-[300px] p-2">
 			{/* 右上+ボタン */}
 			<Button
 				className="absolute top-2 right-2 w-10 h-10 rounded-lg bg-transparent hover:bg-gray-700 flex items-center justify-center text-2xl shadow-lg text-white"
@@ -235,7 +240,7 @@ function App() {
 			/>
 			{/* デバイス未登録時 */}
 			{registeredDevices.length === 0 ? (
-				<div className="flex flex-col items-center justify-center min-h-screen space-y-8">
+				<div className="flex flex-col items-center justify-center py-12 space-y-6">
 					<h1 className="text-2xl">No devices registered</h1>
 					<Button onClick={handleOpenModal}>
 						Add Device

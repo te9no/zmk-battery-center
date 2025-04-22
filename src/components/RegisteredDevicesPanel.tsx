@@ -17,10 +17,10 @@ const RegisteredDevicesPanel: React.FC<DeviceListProps> = ({
 	const handleMenuClose = () => setMenuOpen(null);
 
 	return (
-		<div className="grid gap-3 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+		<div className="grid gap-1 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
 			{registeredDevices.map((device: RegisteredDevice, idx: number) => {
 				return (
-					<div key={device.id} className="group rounded-lg shadow-lg p-4 flex flex-col gap-2 relative">
+					<div key={device.id} className="group rounded-lg shadow-lg p-3 flex flex-col gap-2 relative">
 						{/* ・・・ボタンとメニュー */}
 						<div className="absolute top-2 right-2">
 							<button
