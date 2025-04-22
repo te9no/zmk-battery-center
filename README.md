@@ -1,18 +1,21 @@
 # zmk-battery-center
 
-A system tray app to monitor battery status of zmk-based keyboards.
+A system tray app to monitor battery level of zmk-based keyboards.
 
-## Features
-- Show battery status of both central and peripheral for split keyboards
-- Show battery status of multiple keyboards
-- Support both Mac and Windows
+## ✨Features
+- Show battery level of
+  - both central and peripheral for split keyboards
+  - multiple keyboards
+- Cross-platform(macOS, Windows)
+  - Perhaps also compatible with Linux, but not tested
 
 ## Usage
 
 1. Download the latest release from [Releases](https://github.com/kot149/zmk-battery-center/releases).
-2. Install or execute the app
+2. Install/execute the app
 3. Click the icon in system tray
 4. Click `Add Device` button and select your keyboard
+   - Grant the Bluetooth permission if you are on macOS
 
 ## Trouble Shooting
 
@@ -34,3 +37,4 @@ A system tray app to monitor battery status of zmk-based keyboards.
 - [zmk-ble](https://github.com/Katona/zmk-ble): PoC system tray app for macOS (does not work on latest macOS)
 - [Mighty-Mitts](https://github.com/codyd51/Mighty-Mitts): System tray app for macOS
 - [zmk-split-battery](https://github.com/Maksim-Isakau/zmk-split-battery): System tray app for Windows
+- [zmkBATx](https://github.com/mh4x0f/zmkBATx): System tray app for Linux
