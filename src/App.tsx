@@ -3,6 +3,8 @@ import { listBatteryDevices, getBatteryInfo, BleDeviceInfo, BatteryInfo } from "
 import { useState, useEffect, useRef } from "react";
 import Button from "./Button";
 import RegisteredDevicesPanel from "./RegisteredDevicesPanel";
+// @ts-ignore 'printRust' is declared but its value is never read.
+import { printRust } from "./common";
 
 /**
  * DeviceListModalのProps型
@@ -14,6 +16,13 @@ type DeviceListModalProps = {
 	onSelect: (id: string) => void;
 	isLoading: boolean;
 };
+
+export type RegisteredDevice = {
+	id: string;
+	name: string;
+	batteryInfos: BatteryInfo[];
+	isDisconnected: boolean;
+}
 
 // モーダルコンポーネント
 function DeviceListModal({ open, onClose, devices, onSelect, isLoading, error }: DeviceListModalProps & { error?: string }) {
@@ -84,13 +93,9 @@ function DeviceListModal({ open, onClose, devices, onSelect, isLoading, error }:
 
 function App() {
 	// 登録済みデバイス
-	const [registeredDevices, setRegisteredDevices] = useState<string[]>([]);
+	const [registeredDevices, setRegisteredDevices] = useState<RegisteredDevice[]>([]);
 	// デバイス取得用
 	const [devices, setDevices] = useState<BleDeviceInfo[]>([]);
-	// バッテリー情報: { [deviceId]: BatteryInfo[] }
-	const [batteryInfos, setBatteryInfos] = useState<Record<string, BatteryInfo[]>>({});
-	// 切断状態: { [deviceId]: boolean }
-	const [disconnected, setDisconnected] = useState<Record<string, boolean>>({});
 	// モーダル表示状態
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	// ローディング・エラー
@@ -141,45 +146,23 @@ function App() {
 		}
 	}
 
-	// バッテリー情報取得（リトライ付き）
-	async function fetchAndSetBatteryInfoWithRetry(id: string, retry = 0) {
-		try {
-			const info = await getBatteryInfo(id);
-			setBatteryInfos((prev) => ({ ...prev, [id]: Array.isArray(info) ? info : [info] }));
-			setDisconnected((prev) => ({ ...prev, [id]: false }));
-		} catch (e: any) {
-			if (retry < 3) {
-				setTimeout(() => fetchAndSetBatteryInfoWithRetry(id, retry + 1), 1000); // 1秒後にリトライ
-			} else {
-				setDisconnected((prev) => ({ ...prev, [id]: true }));
-			}
-		}
-	}
-
 	// デバイス追加
 	const handleAddDevice = async (id: string) => {
-		if (!registeredDevices.includes(id)) {
-			setRegisteredDevices((prev) => [...prev, id]);
+		if (!registeredDevices.some(d => d.id === id)) {
+			const device = devices.find(d => d.id === id);
+			if (!device) return;
 			setIsLoading(true);
-			await fetchAndSetBatteryInfoWithRetry(id);
+			const info = await getBatteryInfo(id);
+			const newDevice: RegisteredDevice = {
+				id: device.id,
+				name: device.name,
+				batteryInfos: Array.isArray(info) ? info : [info],
+				isDisconnected: false
+			};
+			setRegisteredDevices(prev => [...prev, newDevice]);
 			setIsLoading(false);
 		}
 		setIsModalOpen(false);
-	};
-
-	// デバイス削除
-	const handleRemoveDevice = (id: string) => {
-		setRegisteredDevices((prev) => prev.filter((d) => d !== id));
-		setBatteryInfos((prev) => {
-			const newInfo = { ...prev };
-			delete newInfo[id];
-			return newInfo;
-		});
-		setDisconnected((prev) => {
-			const newState = { ...prev };
-			delete newState[id];
-			return newState;
-		});
 	};
 
 	// モーダルを閉じたらエラーも消す
@@ -196,17 +179,30 @@ function App() {
 
 	// 一定時間ごとにバッテリー情報を更新
 	useEffect(() => {
-		if (registeredDevices.length === 0) return;
 		let isUnmounted = false;
+
+		// バッテリー情報を更新する関数
+		const updateBatteryInfo = async (device: RegisteredDevice) => {
+			if (isUnmounted) return;
+			let attempts = 0;
+			while (attempts < 3) {
+				try {
+					const info = await getBatteryInfo(device.id);
+					setRegisteredDevices(prev => prev.map(d => d.id === device.id ? { ...d, batteryInfos: Array.isArray(info) ? info : [info], isDisconnected: false } : d));
+					return;
+				} catch {
+					attempts++;
+					if (attempts >= 3) {
+						setRegisteredDevices(prev => prev.map(d => d.id === device.id ? { ...d, isDisconnected: true } : d));
+					}
+				}
+			}
+		};
+
 		const interval = setInterval(() => {
-			registeredDevices.forEach((id) => {
-				if (!isUnmounted) fetchAndSetBatteryInfoWithRetry(id);
-			});
+			registeredDevices.forEach(updateBatteryInfo);
 		}, 10000);
-		// 初回も取得
-		registeredDevices.forEach((id) => {
-			if (!isUnmounted) fetchAndSetBatteryInfoWithRetry(id);
-		});
+
 		return () => {
 			isUnmounted = true;
 			clearInterval(interval);
@@ -228,7 +224,7 @@ function App() {
 			<DeviceListModal
 				open={isModalOpen}
 				onClose={handleCloseModal}
-				devices={devices.filter(d => !registeredDevices.includes(d.id))}
+				devices={devices.filter(d => !registeredDevices.some(rd => rd.id === d.id))}
 				onSelect={handleAddDevice}
 				isLoading={isLoading}
 				error={error}
@@ -245,11 +241,7 @@ function App() {
 				<main className="container mx-auto pt-10">
 					<RegisteredDevicesPanel
 						registeredDevices={registeredDevices}
-						devices={devices}
-						batteryInfos={batteryInfos}
 						setRegisteredDevices={setRegisteredDevices}
-						handleRemoveDevice={handleRemoveDevice}
-						disconnected={disconnected}
 					/>
 				</main>
 			)}
@@ -258,7 +250,7 @@ function App() {
 				<div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-950 bg-opacity-60">
 					<div className="bg-gray-900 rounded-lg shadow-lg p-8 flex flex-col items-center">
 						<div className="loader border-4 border-blue-500 border-t-transparent rounded-full w-10 h-10 animate-spin mb-4"></div>
-						<span className="text-white">バッテリー情報を取得中...</span>
+						<span className="text-white">Fetching battery info...</span>
 					</div>
 				</div>
 			)}
