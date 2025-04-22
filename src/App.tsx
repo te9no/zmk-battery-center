@@ -1,10 +1,10 @@
 import "./App.css";
-import { listBatteryDevices, getBatteryInfo, BleDeviceInfo, BatteryInfo } from "./ble";
+import { listBatteryDevices, getBatteryInfo, BleDeviceInfo, BatteryInfo } from "./utils/ble";
 import { useState, useEffect, useRef } from "react";
-import Button from "./Button";
-import RegisteredDevicesPanel from "./RegisteredDevicesPanel";
+import Button from "./components/Button";
+import RegisteredDevicesPanel from "./components/RegisteredDevicesPanel";
 // @ts-ignore 'printRust' is declared but its value is never read.
-import { printRust, sleep } from "./common";
+import { printRust, sleep } from "./utils/common";
 
 export type RegisteredDevice = {
 	id: string;

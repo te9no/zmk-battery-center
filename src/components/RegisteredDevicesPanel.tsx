@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import BatteryIcon from "./BatteryIcon";
-import { BatteryInfo } from "./ble";
-import type { RegisteredDevice } from "./App";
+import BatteryIcon from "@/components/BatteryIcon";
+import { BatteryInfo } from "@/utils/ble";
+import type { RegisteredDevice } from "@/App";
 
 interface DeviceListProps {
 	registeredDevices: RegisteredDevice[];
