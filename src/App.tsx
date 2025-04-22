@@ -6,6 +6,13 @@ import RegisteredDevicesPanel from "./RegisteredDevicesPanel";
 // @ts-ignore 'printRust' is declared but its value is never read.
 import { printRust, sleep } from "./common";
 
+export type RegisteredDevice = {
+	id: string;
+	name: string;
+	batteryInfos: BatteryInfo[];
+	isDisconnected: boolean;
+}
+
 /**
  * DeviceListModalのProps型
  */
@@ -16,13 +23,6 @@ type DeviceListModalProps = {
 	onSelect: (id: string) => void;
 	isLoading: boolean;
 };
-
-export type RegisteredDevice = {
-	id: string;
-	name: string;
-	batteryInfos: BatteryInfo[];
-	isDisconnected: boolean;
-}
 
 // モーダルコンポーネント
 function DeviceListModal({ open, onClose, devices, onSelect, isLoading, error }: DeviceListModalProps & { error?: string }) {
@@ -98,13 +98,14 @@ function App() {
 	const [devices, setDevices] = useState<BleDeviceInfo[]>([]);
 	// モーダル表示状態
 	const [isModalOpen, setIsModalOpen] = useState(false);
-	// ローディング・エラー
-	const [isLoading, setIsLoading] = useState(false);
+	// isLoadingを2つに分離
+	const [isDeviceLoading, setIsDeviceLoading] = useState(false);
+	const [isBatteryLoading, setIsBatteryLoading] = useState(false);
 	const [error, setError] = useState("");
 
 	// デバイス一覧取得
 	async function fetchDevices() {
-		setIsLoading(true);
+		setIsDeviceLoading(true);
 		setError("");
 		let timeoutId: number | null = null;
 		let finished = false;
@@ -121,7 +122,7 @@ function App() {
 						msg += " If you are using macOS, please make sure Bluetooth permission is granted.";
 					}
 					setError(msg);
-					setIsLoading(false);
+					setIsDeviceLoading(false);
 					reject(new Error(msg));
 				}, 20000);
 			});
@@ -142,7 +143,7 @@ function App() {
 			}
 		} finally {
 			if (timeoutId) clearTimeout(timeoutId);
-			if (!finished) setIsLoading(false);
+			if (!finished) setIsDeviceLoading(false);
 		}
 	}
 
@@ -151,7 +152,7 @@ function App() {
 		if (!registeredDevices.some(d => d.id === id)) {
 			const device = devices.find(d => d.id === id);
 			if (!device) return;
-			setIsLoading(true);
+			setIsBatteryLoading(true);
 			const info = await getBatteryInfo(id);
 			const newDevice: RegisteredDevice = {
 				id: device.id,
@@ -160,7 +161,7 @@ function App() {
 				isDisconnected: false
 			};
 			setRegisteredDevices(prev => [...prev, newDevice]);
-			setIsLoading(false);
+			setIsBatteryLoading(false);
 		}
 		setIsModalOpen(false);
 	};
@@ -229,7 +230,7 @@ function App() {
 				onClose={handleCloseModal}
 				devices={devices.filter(d => !registeredDevices.some(rd => rd.id === d.id))}
 				onSelect={handleAddDevice}
-				isLoading={isLoading}
+				isLoading={isDeviceLoading}
 				error={error}
 			/>
 			{/* デバイス未登録時 */}
@@ -249,7 +250,7 @@ function App() {
 				</main>
 			)}
 			{/* Add Deviceでデバイス選択後のローディング表示 */}
-			{isLoading && (
+			{isBatteryLoading && (
 				<div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-950 bg-opacity-60">
 					<div className="bg-gray-900 rounded-lg shadow-lg p-8 flex flex-col items-center">
 						<div className="loader border-4 border-blue-500 border-t-transparent rounded-full w-10 h-10 animate-spin mb-4"></div>
