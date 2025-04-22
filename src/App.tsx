@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Button from "./Button";
 import RegisteredDevicesPanel from "./RegisteredDevicesPanel";
 // @ts-ignore 'printRust' is declared but its value is never read.
-import { printRust } from "./common";
+import { printRust, sleep } from "./common";
 
 /**
  * DeviceListModalのProps型
@@ -185,17 +185,20 @@ function App() {
 		const updateBatteryInfo = async (device: RegisteredDevice) => {
 			if (isUnmounted) return;
 			let attempts = 0;
-			while (attempts < 3) {
+			const maxAttempts = device.isDisconnected ? 1 : 3;
+			while (attempts < maxAttempts) {
+				printRust(`Updating battery info for: ${device.id} (attempt ${attempts + 1} of ${maxAttempts})`);
 				try {
 					const info = await getBatteryInfo(device.id);
 					setRegisteredDevices(prev => prev.map(d => d.id === device.id ? { ...d, batteryInfos: Array.isArray(info) ? info : [info], isDisconnected: false } : d));
 					return;
 				} catch {
 					attempts++;
-					if (attempts >= 3) {
+					if (attempts >= maxAttempts) {
 						setRegisteredDevices(prev => prev.map(d => d.id === device.id ? { ...d, isDisconnected: true } : d));
 					}
 				}
+				await sleep(1000);
 			}
 		};
 
