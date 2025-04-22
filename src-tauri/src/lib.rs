@@ -32,27 +32,18 @@ pub fn run() {
                 }
 
                 // メニューアイテムを作成
+                let show_item = MenuItemBuilder::with_id("show", "Show").build(app)?;
                 let quit_item = MenuItemBuilder::with_id("quit", "Quit").build(app)?;
 
                 // メニューを構築
                 let menu = MenuBuilder::new(app)
-                    .items(&[&quit_item])
+                    .items(&[&show_item, &quit_item])
                     .build()?;
 
 				let tray = app.tray_by_id("tray_icon").unwrap();
                 tray.set_menu(Some(menu)).expect("トレイメニューの設定に失敗しました");
                 let _ = tray.set_show_menu_on_left_click(false);
-                tray.on_menu_event(|tray_handle, event| {
-                    match event.id.as_ref() {
-                        "quit" => {
-                            println!("quit menu item was clicked");
-                            tray_handle.app_handle().exit(0);
-                        }
-                        _ => {
-                            println!("menu item {:?} not handled", event.id);
-                        }
-                    };
-                });
+
                 tray.on_tray_icon_event(|tray_handle, event| {
                         tauri_plugin_positioner::on_tray_event(tray_handle.app_handle(), &event);
 
@@ -83,6 +74,25 @@ pub fn run() {
 			}
 
             Ok(())
+        })
+        .on_menu_event(|app, event| {
+            match event.id.as_ref() {
+                "show" => {
+                    println!("show menu item was clicked");
+                    if let Some(window) = app.get_webview_window("main") {
+                        let _ = window.move_window(Position::TrayCenter);
+                        let _ = window.show();
+                        let _ = window.set_focus();
+                    }
+                }
+                "quit" => {
+                    println!("quit menu item was clicked");
+                    app.exit(0);
+                }
+                _ => {
+                    println!("menu item {:?} not handled", event.id);
+                }
+            }
         })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
