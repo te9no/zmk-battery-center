@@ -38,7 +38,7 @@ const RegisteredDevicesPanel: React.FC<DeviceListProps> = ({
 							{/* メニュー */}
 							{menuOpen === device.id && (
 								<div
-									className={`absolute right-0 w-24 bg-gray-900 text-sm border border-gray-700 rounded-lg shadow-lg z-10 ${idx >= registeredDevices.length - 1 ? 'translate-y-[-60%]' : ''}`}
+									className={`${idx >= registeredDevices.length - 1 ? 'fixed bottom-4 right-4' : 'absolute right-0'}  w-24 bg-gray-900 text-sm border border-gray-700 rounded-lg shadow-lg z-10`}
 								>
 									<button
 										className="w-full text-left px-2 py-1 hover:bg-gray-800 rounded-t-lg"
@@ -71,8 +71,8 @@ const RegisteredDevicesPanel: React.FC<DeviceListProps> = ({
 						)}
 						{/* デバイス情報 */}
 						<div className="flex flex-row justify-center px-4 py-2 gap-2">
-							<div className="flex flex-col items-start min-w-[60px] w-[60px]">
-								<span className="text-base font-semibold">{device.name}</span>
+						<div className="flex flex-col items-start min-w-[60px] w-[60px]">
+						<span className="text-base font-semibold">{device.name}</span>
 								{device.isDisconnected && (
 									<span className="text-xs text-red-400 mt-1">disconnected</span>
 								)}

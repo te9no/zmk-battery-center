@@ -240,7 +240,7 @@ function App() {
 			/>
 			{/* デバイス未登録時 */}
 			{registeredDevices.length === 0 ? (
-				<div className="flex flex-col items-center justify-center py-12 space-y-6">
+				<div className="flex flex-col items-center justify-center py-10 space-y-6">
 					<h1 className="text-2xl">No devices registered</h1>
 					<Button onClick={handleOpenModal}>
 						Add Device
