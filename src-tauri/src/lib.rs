@@ -80,7 +80,7 @@ pub fn run() {
                 "show" => {
                     println!("show menu item was clicked");
                     if let Some(window) = app.get_webview_window("main") {
-                        let _ = window.move_window(Position::TrayCenter);
+                        let _ = window.move_window(Position::TrayCenter).unwrap();
                         let _ = window.show();
                         let _ = window.set_focus();
                     }
