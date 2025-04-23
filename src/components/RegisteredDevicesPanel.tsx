@@ -19,7 +19,7 @@ const RegisteredDevicesPanel: React.FC<DeviceListProps> = ({
 
 	return (
 		<div className="max-w-3xl mx-auto rounded-xl shadow-md overflow-hidden">
-			<div className="p-3">
+			<div className="p-4 pt-2">
 				<div className="space-y-4">
 					{registeredDevices.map((device, deviceIdx) => (
 						<div key={device.id} className="relative group bg-gray-800 rounded-lg p-4">
