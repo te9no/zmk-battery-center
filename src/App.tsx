@@ -7,8 +7,10 @@ import RegisteredDevicesPanel from "./components/RegisteredDevicesPanel";
 // @ts-ignore 'printRust' is declared but its value is never read.
 import { printRust, sleep } from "./utils/common";
 import { resizeWindowToContent } from "./utils/window";
-import { PlusIcon, ArrowPathIcon, Cog8ToothIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { PlusIcon, ArrowPathIcon, Cog8ToothIcon } from "@heroicons/react/24/outline";
 import Modal from "./components/Modal";
+import { getConfig, setConfig, type Config, defaultConfig } from "./utils/config";
+import { load } from '@tauri-apps/plugin-store';
 
 export type RegisteredDevice = {
 	id: string;
@@ -25,6 +27,8 @@ function App() {
 	const [isDebugMode, setIsDebugMode] = useState(false);
 	// 登録済みデバイス
 	const [registeredDevices, setRegisteredDevices] = useState<RegisteredDevice[]>(isDebugMode ? mockRegisteredDevices : []);
+	// デバイスロード完了フラグ
+	const [isLoaded, setIsLoaded] = useState(false);
 
 	// デバッグモードの切り替え処理
 	const toggleDebugMode = () => {
@@ -42,9 +46,45 @@ function App() {
 	const [devices, setDevices] = useState<BleDeviceInfo[]>([]);
 	// モーダル表示状態
 	const [isModalOpen, setIsModalOpen] = useState(false);
+	// デバイス一覧取得ローディング
 	const [isDeviceLoading, setIsDeviceLoading] = useState(false);
+	// バッテリー情報取得ローディング
 	const [isBatteryLoading, setIsBatteryLoading] = useState(false);
+	// エラーメッセージ
 	const [error, setError] = useState("");
+
+	// config値
+	const [config, setConfig] = useState<Config>(defaultConfig);
+
+	// 保存された値を取得
+	useEffect(() => {
+		const fetchConfig = async () => {
+			const config = await getConfig();
+			setConfig(config);
+		};
+		fetchConfig();
+
+		const fetchRegisteredDevices = async () => {
+			const deviceStore = await load('devices.json', { autoSave: true });
+			const devices = await deviceStore.get<RegisteredDevice[]>("devices");
+			setRegisteredDevices(devices || []);
+			printRust(`Loaded saved registered devices: ${JSON.stringify(devices, null, 4)}`);
+			setIsLoaded(true);
+		};
+		fetchRegisteredDevices();
+	}, []);
+
+	// デバイス一覧保存
+	useEffect(() => {
+		if (!isLoaded) return;
+		const saveRegisteredDevices = async () => {
+			const deviceStore = await load('devices.json', { autoSave: true });
+			await deviceStore.set("devices", registeredDevices);
+			await deviceStore.save();
+			printRust('Saved registered devices');
+		};
+		saveRegisteredDevices();
+	}, [registeredDevices]);
 
 	// デバイス一覧取得
 	async function fetchDevices() {
@@ -160,7 +200,7 @@ function App() {
 		const interval = setInterval(() => {
 			if(isUnmounted) return;
 			registeredDevices.forEach(updateBatteryInfo);
-		}, 10000);
+		}, config.fetchInterval);
 
 		return () => {
 			isUnmounted = true;
