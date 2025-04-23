@@ -1,11 +1,13 @@
 import "./App.css";
 import { listBatteryDevices, getBatteryInfo, BleDeviceInfo, BatteryInfo } from "./utils/ble";
 import { useState, useEffect, useRef } from "react";
+import { mockRegisteredDevices } from "./utils/mockData";
 import Button from "./components/Button";
 import RegisteredDevicesPanel from "./components/RegisteredDevicesPanel";
 // @ts-ignore 'printRust' is declared but its value is never read.
 import { printRust, sleep } from "./utils/common";
 import { resizeWindowToContent } from "./utils/window";
+
 export type RegisteredDevice = {
 	id: string;
 	name: string;
@@ -28,7 +30,7 @@ type DeviceListModalProps = {
 function DeviceListModal({ open, onClose, devices, onSelect, isLoading, error }: DeviceListModalProps & { error?: string }) {
 	const [show, setShow] = useState(open);
 	const [animate, setAnimate] = useState(false);
-	const timeoutRef = useRef<number | null>(null);
+	const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
 	useEffect(() => {
 		if (open) {
@@ -91,9 +93,28 @@ function DeviceListModal({ open, onClose, devices, onSelect, isLoading, error }:
 	);
 }
 
+// デバッグモードの設定
+const IS_DEV = process.env.NODE_ENV === 'development';
+
 function App() {
+	// デバッグモードの切り替え
+	const [isDebugMode, setIsDebugMode] = useState(false);
 	// 登録済みデバイス
-	const [registeredDevices, setRegisteredDevices] = useState<RegisteredDevice[]>([]);
+	const [registeredDevices, setRegisteredDevices] = useState<RegisteredDevice[]>(isDebugMode ? mockRegisteredDevices : []);
+
+	// デバッグモードの切り替え処理
+	const toggleDebugMode = () => {
+		setIsDebugMode(prev => {
+			if (!prev) {
+				setRegisteredDevices(mockRegisteredDevices);
+			} else {
+				setRegisteredDevices([]);
+			}
+			return !prev;
+		});
+	};
+
+
 	// デバイス取得用
 	const [devices, setDevices] = useState<BleDeviceInfo[]>([]);
 	// モーダル表示状態
@@ -239,6 +260,18 @@ function App() {
 				error={error}
 			/>
 			{/* デバイス未登録時 */}
+			{/* デバッグモード切り替えボタン */}
+			{IS_DEV && (
+				<div className="fixed top-4 left-4">
+					<button
+						className={`px-3 py-1 rounded-lg text-sm ${isDebugMode ? 'bg-yellow-600' : 'bg-gray-600'} hover:opacity-80 transition-opacity`}
+						onClick={toggleDebugMode}
+					>
+						{isDebugMode ? 'Debug Mode' : 'Production Mode'}
+					</button>
+				</div>
+			)}
+
 			{registeredDevices.length === 0 ? (
 				<div className="flex flex-col items-center justify-center py-10 space-y-6">
 					<h1 className="text-2xl">No devices registered</h1>
