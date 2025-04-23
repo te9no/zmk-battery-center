@@ -8,90 +8,13 @@ import RegisteredDevicesPanel from "./components/RegisteredDevicesPanel";
 import { printRust, sleep } from "./utils/common";
 import { resizeWindowToContent } from "./utils/window";
 import { PlusIcon, ArrowPathIcon, Cog8ToothIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import Modal from "./components/Modal";
 
 export type RegisteredDevice = {
 	id: string;
 	name: string;
 	batteryInfos: BatteryInfo[];
 	isDisconnected: boolean;
-}
-
-/**
- * DeviceListModalのProps型
- */
-type DeviceListModalProps = {
-	open: boolean;
-	onClose: () => void;
-	devices: BleDeviceInfo[];
-	onSelect: (id: string) => void;
-	isLoading: boolean;
-};
-
-// モーダルコンポーネント
-function DeviceListModal({ open, onClose, devices, onSelect, isLoading, error }: DeviceListModalProps & { error?: string }) {
-	const [show, setShow] = useState(open);
-	const [animate, setAnimate] = useState(false);
-	const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
-
-	useEffect(() => {
-		if (open) {
-			setShow(true);
-			setTimeout(() => setAnimate(true), 10); // 少し遅延してアニメ開始
-		} else {
-			setAnimate(false);
-			timeoutRef.current = setTimeout(() => setShow(false), 200); // アニメ後に非表示
-		}
-		return () => {
-			if (timeoutRef.current) clearTimeout(timeoutRef.current);
-		};
-	}, [open]);
-
-	if (!show) return null;
-	return (
-		<div
-			className={`fixed inset-0 z-50 flex items-center justify-center bg-gray-950 bg-opacity-60 transition-opacity duration-200 ${animate ? 'opacity-100' : 'opacity-0'}`}
-			onClick={onClose}
-		>
-			<div
-				className={`bg-gray-900 rounded-lg shadow-lg p-6 min-w-[200px] relative transform transition-all duration-200 ${animate ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
-				onClick={e => e.stopPropagation()}
-			>
-				{/* 右上バツボタン */}
-				<Button
-					className="absolute top-4 right-4 w-10 h-10 rounded-lg bg-transparent hover:bg-gray-700 flex items-center justify-center text-xl font-bold text-white !p-0"
-					onClick={onClose}
-					aria-label="モーダルを閉じる"
-				>
-					<XMarkIcon className="size-5 text-white" />
-				</Button>
-				<h2 className="text-white text-lg mb-4">Select Device</h2>
-				{error && <div className="mb-4 bg-red-900 text-white px-4 py-2 rounded shadow-lg">{error}</div>}
-				{isLoading ? (
-					<div className="flex justify-center items-center py-8">
-						<div className="loader border-4 border-blue-500 border-t-transparent rounded-full w-10 h-10 animate-spin"></div>
-						<span className="ml-4 text-white">Fetching devices...</span>
-					</div>
-				) : (
-					<ul className="max-h-60 overflow-y-auto rounded-sm">
-						{devices.length === 0 && (
-							<li className="text-gray-400">No devices found</li>
-						)}
-						{devices.map((d) => (
-							<li key={d.id}>
-								<Button
-									className="w-full text-left rounded-none hover:bg-gray-700 text-white bg-gray-800 transition-colors duration-300 !p-2"
-									onClick={() => onSelect(d.id)}
-									disabled={isLoading}
-								>
-									{d.name}
-								</Button>
-							</li>
-						))}
-					</ul>
-				)}
-			</div>
-		</div>
-	);
 }
 
 // デバッグモードの設定
@@ -114,7 +37,6 @@ function App() {
 			return !prev;
 		});
 	};
-
 
 	// デバイス取得用
 	const [devices, setDevices] = useState<BleDeviceInfo[]>([]);
@@ -295,15 +217,34 @@ function App() {
 				</div>
 			</div>
 
-			{/* モーダル */}
-			<DeviceListModal
+			{/* モーダル（デバイス選択） */}
+			<Modal
 				open={isModalOpen}
 				onClose={handleCloseModal}
-				devices={devices.filter(d => !registeredDevices.some(rd => rd.id === d.id))}
-				onSelect={handleAddDevice}
+				title="Select Device"
 				isLoading={isDeviceLoading}
 				error={error}
-			/>
+				loadingText="Fetching devices..."
+			>
+				{!isDeviceLoading && (
+					<ul className="max-h-60 overflow-y-auto rounded-sm">
+						{devices.filter(d => !registeredDevices.some(rd => rd.id === d.id)).length === 0 && (
+							<li className="text-gray-400">No devices found</li>
+						)}
+						{devices.filter(d => !registeredDevices.some(rd => rd.id === d.id)).map((d) => (
+							<li key={d.id}>
+								<Button
+									className="w-full text-left rounded-none hover:bg-gray-700 text-white bg-gray-800 transition-colors duration-300 !p-2"
+									onClick={() => handleAddDevice(d.id)}
+									disabled={isDeviceLoading}
+								>
+									{d.name}
+								</Button>
+							</li>
+						))}
+					</ul>
+				)}
+			</Modal>
 
 			{/* デバイス未登録時 */}
 			{registeredDevices.length === 0 ? (
@@ -323,14 +264,13 @@ function App() {
 				</main>
 			)}
 			{/* Add Deviceでデバイス選択後のローディング表示 */}
-			{isBatteryLoading && (
-				<div className="fixed inset-0 z-50 flex items-center justify-center bg-opacity-60">
-					<div className="bg-gray-900 rounded-lg shadow-lg p-8 flex flex-col items-center">
-						<div className="loader border-4 border-blue-500 border-t-transparent rounded-full w-10 h-10 animate-spin mb-4"></div>
-						<span className="text-white">Fetching battery info...</span>
-					</div>
-				</div>
-			)}
+			<Modal
+				open={isBatteryLoading}
+				onClose={() => {}}
+				isLoading={true}
+				loadingText="Fetching battery info..."
+				showCloseButton={false}
+			/>
 		</div>
 	);
 }
