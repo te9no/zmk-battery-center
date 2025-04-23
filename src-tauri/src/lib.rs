@@ -1,22 +1,27 @@
-use tauri::{
-    Manager,
-    tray::{MouseButton, MouseButtonState, TrayIconEvent},
-    menu::{MenuBuilder, MenuItemBuilder},
-};
 use tauri::Emitter;
-use tauri_plugin_positioner::{WindowExt, Position};
+use tauri::{
+    menu::{MenuBuilder, MenuItemBuilder},
+    tray::{MouseButton, MouseButtonState, TrayIconEvent},
+    Manager,
+};
+use tauri_plugin_positioner::{Position, WindowExt};
 
 // モジュール宣言を追加
-mod common;
 mod ble;
+mod common;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
-        .plugin(tauri_plugin_single_instance::init(|_, _, _|{}))
+        .plugin(tauri_plugin_store::Builder::new().build())
+        .plugin(tauri_plugin_single_instance::init(|_, _, _| {}))
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_positioner::init())
-        .invoke_handler(tauri::generate_handler![common::print_rust, ble::list_battery_devices, ble::get_battery_info])
+        .invoke_handler(tauri::generate_handler![
+            common::print_rust,
+            ble::list_battery_devices,
+            ble::get_battery_info
+        ])
         .setup(|app| {
             #[cfg(desktop)]
             {
@@ -39,8 +44,9 @@ pub fn run() {
                     .items(&[&show_item, &quit_item])
                     .build()?;
 
-				let tray = app.tray_by_id("tray_icon").unwrap();
-                tray.set_menu(Some(menu)).expect("トレイメニューの設定に失敗しました");
+                let tray = app.tray_by_id("tray_icon").unwrap();
+                tray.set_menu(Some(menu))
+                    .expect("トレイメニューの設定に失敗しました");
                 let _ = tray.set_show_menu_on_left_click(false);
 
                 tray.on_tray_icon_event(|tray_handle, event| {
@@ -61,7 +67,7 @@ pub fn run() {
                         } => {
                             if let Some(window) = app.get_webview_window("main") {
                                 if window.is_visible().unwrap() {
-                                    let _ = window.hide(); 
+                                    let _ = window.hide();
                                 } else {
                                     let _ = window.move_window(Position::TrayCenter);
                                     let _ = window.show();
@@ -74,30 +80,29 @@ pub fn run() {
                 });
             }
 
-			#[cfg(target_os = "macos")]{
-				let _ = app.set_activation_policy(tauri::ActivationPolicy::Accessory);
-			}
+            #[cfg(target_os = "macos")]
+            {
+                let _ = app.set_activation_policy(tauri::ActivationPolicy::Accessory);
+            }
 
             Ok(())
         })
-        .on_menu_event(|app, event| {
-            match event.id.as_ref() {
-                "show" => {
-                    println!("show menu item was clicked");
-                    if let Some(window) = app.get_webview_window("main") {
-                        let _ = window.move_window(Position::TrayCenter);
-                        let _ = window.emit("tray-position-set", true);
-                        let _ = window.show();
-                        let _ = window.set_focus();
-                    }
+        .on_menu_event(|app, event| match event.id.as_ref() {
+            "show" => {
+                println!("show menu item was clicked");
+                if let Some(window) = app.get_webview_window("main") {
+                    let _ = window.move_window(Position::TrayCenter);
+                    let _ = window.emit("tray-position-set", true);
+                    let _ = window.show();
+                    let _ = window.set_focus();
                 }
-                "quit" => {
-                    println!("quit menu item was clicked");
-                    app.exit(0);
-                }
-                _ => {
-                    println!("menu item {:?} not handled", event.id);
-                }
+            }
+            "quit" => {
+                println!("quit menu item was clicked");
+                app.exit(0);
+            }
+            _ => {
+                println!("menu item {:?} not handled", event.id);
             }
         })
         .run(tauri::generate_context!())

@@ -28,6 +28,7 @@ bluest = "0.6.7"
 tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
 uuid = "1.16.0"
+tauri-plugin-store = "2"
 
 [profile.dev]
 incremental = true # Compile your binary in smaller steps.
