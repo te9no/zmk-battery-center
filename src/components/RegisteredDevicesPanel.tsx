@@ -33,10 +33,10 @@ const RegisteredDevicesPanel: React.FC<DeviceListProps> = ({
 									<EllipsisHorizontalIcon className="size-6 mx-auto" />
 								</Button>
 								{menuOpen === device.id && (
-									<div className={`absolute right-0 w-24 bg-gray-900 text-sm border border-gray-700 rounded-lg shadow-lg z-20`}>
+									<div className={`${deviceIdx !== registeredDevices.length - 1 ? 'absolute right-0' : 'fixed bottom-4 right-4'} w-30 bg-gray-900 text-sm border border-gray-700 rounded-lg shadow-lg z-20`}>
 										{ deviceIdx !== 0 && (
 											<Button
-												className="w-full text-left rounded-none !text-sm !px-2 !py-1 bg-gray-900 hover:bg-gray-800 rounded-t-lg"
+												className="w-full text-left rounded-none !text-sm !px-3 !py-2 bg-gray-900 hover:bg-gray-800 rounded-t-lg"
 												onClick={() => {
 													if (deviceIdx > 0) {
 														setRegisteredDevices(prev => {
@@ -53,7 +53,7 @@ const RegisteredDevicesPanel: React.FC<DeviceListProps> = ({
 										)}
 										{ deviceIdx !== registeredDevices.length - 1 && (
 											<Button
-												className="w-full text-left rounded-none !text-sm !px-2 !py-1 bg-gray-900 hover:bg-gray-800"
+												className="w-full text-left rounded-none !text-sm !px-3 !py-2 bg-gray-900 hover:bg-gray-800"
 												onClick={() => {
 													if (deviceIdx < registeredDevices.length - 1) {
 														setRegisteredDevices(prev => {
@@ -69,7 +69,7 @@ const RegisteredDevicesPanel: React.FC<DeviceListProps> = ({
 											</Button>
 										)}
 										<Button
-											className="w-full text-left rounded-none !text-sm !px-2 !py-1 bg-gray-900 !text-red-500 hover:bg-gray-800 rounded-b-lg"
+											className="w-full text-left rounded-none !text-sm !px-3 !py-2 bg-gray-900 !text-red-500 hover:bg-gray-800 rounded-b-lg"
 											onClick={() => { setRegisteredDevices(prev => prev.filter(d => d.id !== device.id)); handleMenuClose(); }}
 										>
 											Remove

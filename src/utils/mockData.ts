@@ -37,7 +37,6 @@ export const mockRegisteredDevices: RegisteredDevice[] = [
         name: 'Keyboard with Long Name',
         batteryInfos: [
             { user_descriptor: 'Central', battery_level: 85 },
-            { user_descriptor: 'Peripheral 0', battery_level: 72 }
         ],
         isDisconnected: false
     },
