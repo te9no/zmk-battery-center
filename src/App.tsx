@@ -57,7 +57,7 @@ function DeviceListModal({ open, onClose, devices, onSelect, isLoading, error }:
 			>
 				{/* 右上バツボタン */}
 				<button
-					className="absolute top-2 right-2 w-10 h-10 rounded-lg bg-transparent hover:bg-gray-700 flex items-center justify-center text-xl font-bold text-white focus:outline-none transition-colors duration-300"
+					className="absolute top-4 right-4 w-10 h-10 rounded-lg bg-transparent hover:bg-gray-700 flex items-center justify-center text-xl font-bold text-white focus:outline-none transition-colors duration-300"
 					onClick={onClose}
 					aria-label="モーダルを閉じる"
 				>
@@ -71,14 +71,14 @@ function DeviceListModal({ open, onClose, devices, onSelect, isLoading, error }:
 						<span className="ml-4 text-white">Fetching devices...</span>
 					</div>
 				) : (
-					<ul className="max-h-60 overflow-y-auto">
+					<ul className="max-h-60 overflow-y-auto rounded-sm">
 						{devices.length === 0 && (
 							<li className="text-gray-400">No devices found</li>
 						)}
 						{devices.map((d) => (
 							<li key={d.id}>
 								<Button
-									className="w-full text-left rounded-none hover:bg-gray-700 text-white bg-gray-800 transition-colors duration-300"
+									className="w-full text-left rounded-none hover:bg-gray-700 text-white bg-gray-800 transition-colors duration-300 !p-2"
 									onClick={() => onSelect(d.id)}
 									disabled={isLoading}
 								>
@@ -241,7 +241,7 @@ function App() {
 
 	// UI
 	return (
-		<div id="app" className="text-white relative min-w-[300px] p-2">
+		<div id="app" className={`text-white relative min-w-[300px] p-2 ${registeredDevices.length === 0 || isModalOpen ? 'min-h-[300px]' : ''}`}>
 			{/* 右上+ボタン */}
 			<Button
 				className="absolute top-2 right-2 w-10 h-10 rounded-lg bg-transparent hover:bg-gray-700 flex items-center justify-center text-2xl shadow-lg text-white"
@@ -259,7 +259,6 @@ function App() {
 				isLoading={isDeviceLoading}
 				error={error}
 			/>
-			{/* デバイス未登録時 */}
 			{/* デバッグモード切り替えボタン */}
 			{IS_DEV && (
 				<div className="fixed top-4 left-4">
@@ -272,14 +271,16 @@ function App() {
 				</div>
 			)}
 
+			{/* デバイス未登録時 */}
 			{registeredDevices.length === 0 ? (
-				<div className="flex flex-col items-center justify-center py-10 space-y-6">
+				<div className="flex flex-col items-center justify-center h-full min-h-[300px] space-y-6">
 					<h1 className="text-2xl">No devices registered</h1>
 					<Button onClick={handleOpenModal}>
 						Add Device
 					</Button>
 				</div>
 			) : (
+				/* デバイス登録時 */
 				<main className="container mx-auto pt-10">
 					<RegisteredDevicesPanel
 						registeredDevices={registeredDevices}
