@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import BatteryIcon from "@/components/BatteryIcon";
 import type { RegisteredDevice } from "@/App";
+import { Button } from "@/components/Button";
 
 interface DeviceListProps {
 	registeredDevices: RegisteredDevice[];
@@ -18,7 +19,7 @@ const RegisteredDevicesPanel: React.FC<DeviceListProps> = ({
 	return (
 		<div className="max-w-3xl mx-auto rounded-xl shadow-md overflow-hidden">
 			<div className="p-4">
-				<div className="space-y-6">
+				<div className="space-y-4">
 					{registeredDevices.map((device, deviceIdx) => (
 						<div key={device.id} className="relative group bg-gray-800 rounded-lg p-4">
 							{/* メニュー（右上） */}
@@ -37,8 +38,8 @@ const RegisteredDevicesPanel: React.FC<DeviceListProps> = ({
 								{menuOpen === device.id && (
 									<div className={`absolute right-0 w-24 bg-gray-900 text-sm border border-gray-700 rounded-lg shadow-lg z-20`}>
 										{ deviceIdx !== 0 && (
-											<button
-												className="w-full text-left px-2 py-1 hover:bg-gray-800 rounded-t-lg"
+											<Button
+												className="w-full text-left rounded-none !text-sm !px-2 !py-1 bg-gray-900 hover:bg-gray-800 rounded-t-lg"
 												onClick={() => {
 													if (deviceIdx > 0) {
 														setRegisteredDevices(prev => {
@@ -51,11 +52,11 @@ const RegisteredDevicesPanel: React.FC<DeviceListProps> = ({
 												}}
 											>
 												Move Up
-											</button>
+											</Button>
 										)}
 										{ deviceIdx !== registeredDevices.length - 1 && (
-											<button
-												className="w-full text-left px-2 py-1 hover:bg-gray-800"
+											<Button
+												className="w-full text-left rounded-none !text-sm !px-2 !py-1 bg-gray-900 hover:bg-gray-800"
 												onClick={() => {
 													if (deviceIdx < registeredDevices.length - 1) {
 														setRegisteredDevices(prev => {
@@ -68,14 +69,14 @@ const RegisteredDevicesPanel: React.FC<DeviceListProps> = ({
 												}}
 											>
 												Move Down
-											</button>
+											</Button>
 										)}
-										<button
-											className="w-full text-left px-2 py-1 text-red-500 hover:bg-gray-800 rounded-b-lg"
+										<Button
+											className="w-full text-left rounded-none !text-sm !px-2 !py-1 bg-gray-900 !text-red-500 hover:bg-gray-800 rounded-b-lg"
 											onClick={() => { setRegisteredDevices(prev => prev.filter(d => d.id !== device.id)); handleMenuClose(); }}
 										>
 											Remove
-										</button>
+										</Button>
 									</div>
 								)}
 							</div>
