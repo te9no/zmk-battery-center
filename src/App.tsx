@@ -178,7 +178,7 @@ function App() {
 				{IS_DEV && (
 					<div className="fixed top-4 left-4">
 						<button
-							className={`px-3 py-1 rounded-lg text-sm ${isDebugMode ? 'bg-yellow-600' : 'bg-gray-600'} hover:opacity-80 transition-opacity`}
+							className={`px-3 py-1 rounded-lg text-sm ${isDebugMode ? 'bg-yellow-600' : 'bg-transparent text-transparent hover:text-white hover:bg-gray-600'} hover:opacity-80 transition duration-200`}
 							onClick={toggleDebugMode}
 						>
 							{isDebugMode ? 'Debug Mode' : 'Production Mode'}
