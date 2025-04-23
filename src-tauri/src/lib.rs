@@ -1,8 +1,9 @@
 use tauri::{
     Manager,
     tray::{MouseButton, MouseButtonState, TrayIconEvent},
-    menu::{MenuBuilder, MenuItemBuilder}
+    menu::{MenuBuilder, MenuItemBuilder},
 };
+use tauri::Emitter;
 use tauri_plugin_positioner::{WindowExt, Position};
 
 // モジュール宣言を追加
@@ -14,13 +15,11 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_single_instance::init(|_, _, _|{}))
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_positioner::init())
         .invoke_handler(tauri::generate_handler![common::print_rust, ble::list_battery_devices, ble::get_battery_info])
         .setup(|app| {
             #[cfg(desktop)]
             {
-                // positionerプラグインの初期化
-                let _ = app.handle().plugin(tauri_plugin_positioner::init());
-
                 // mainウィンドウのフォーカスが外れたときに自動でhide
                 if let Some(window) = app.get_webview_window("main") {
                     let window_ = window.clone();
@@ -45,28 +44,34 @@ pub fn run() {
                 let _ = tray.set_show_menu_on_left_click(false);
 
                 tray.on_tray_icon_event(|tray_handle, event| {
-                        tauri_plugin_positioner::on_tray_event(tray_handle.app_handle(), &event);
+                    let app = tray_handle.app_handle();
 
-						match event {
-							TrayIconEvent::Click {
-								button: MouseButton::Left,
-								button_state: MouseButtonState::Up,
-								..
-							} => {
-								let app = tray_handle.app_handle();
-								if let Some(window) = app.get_webview_window("main") {
-									if window.is_visible().unwrap() {
-										let _ = window.hide();
-									} else {
-										let _ = window.move_window(Position::TrayCenter);
-										let _ = window.show();
-										let _ = window.set_focus();
-									}
-								}
-							}
-							_ => {}
-						}
-                    });
+                    // Let positioner know about the event
+                    tauri_plugin_positioner::on_tray_event(app, &event);
+
+                    // Let frontend know about the event
+                    let _ = app.emit("tray_event", event.clone());
+
+                    // Handle click event
+                    match event {
+                        TrayIconEvent::Click {
+                            button: MouseButton::Left,
+                            button_state: MouseButtonState::Up,
+                            ..
+                        } => {
+                            if let Some(window) = app.get_webview_window("main") {
+                                if window.is_visible().unwrap() {
+                                    let _ = window.hide(); 
+                                } else {
+                                    let _ = window.move_window(Position::TrayCenter);
+                                    let _ = window.show();
+                                    let _ = window.set_focus();
+                                }
+                            }
+                        }
+                        _ => {}
+                    }
+                });
             }
 
 			#[cfg(target_os = "macos")]{
@@ -80,7 +85,8 @@ pub fn run() {
                 "show" => {
                     println!("show menu item was clicked");
                     if let Some(window) = app.get_webview_window("main") {
-                        let _ = window.move_window(Position::TrayCenter).unwrap();
+                        let _ = window.move_window(Position::TrayCenter);
+                        let _ = window.emit("tray-position-set", true);
                         let _ = window.show();
                         let _ = window.set_focus();
                     }

@@ -2,6 +2,7 @@ import { LogicalSize } from '@tauri-apps/api/dpi';
 import { Position, moveWindow } from '@tauri-apps/plugin-positioner';
 import { printRust } from './common';
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
+import { isTrayPositionSet } from './tray';
 
 export async function resizeWindow(x: number, y: number) {
 	printRust(`resizeWindow: ${x} ${y}`);
@@ -9,7 +10,7 @@ export async function resizeWindow(x: number, y: number) {
 	if (window) {
 		await window.setSize(new LogicalSize(x, y));
 	}
-	moveWindowToTrayCenter();
+    moveWindowToTrayCenter();
 }
 
 export async function resizeWindowToContent() {
@@ -31,5 +32,9 @@ export function setWindowFocus() {
 }
 
 export function moveWindowToTrayCenter() {
-    moveWindow(Position.TrayCenter);
+    if(isTrayPositionSet){
+        moveWindow(Position.TrayCenter);
+    } else {
+        printRust(`moveWindowToTrayCenter(): skipped because isTrayPositionSet is false`);
+    }
 }
