@@ -7,6 +7,7 @@ import RegisteredDevicesPanel from "./components/RegisteredDevicesPanel";
 // @ts-ignore 'printRust' is declared but its value is never read.
 import { printRust, sleep } from "./utils/common";
 import { resizeWindowToContent } from "./utils/window";
+import { PlusIcon, ArrowPathIcon, Cog8ToothIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
 export type RegisteredDevice = {
 	id: string;
@@ -56,13 +57,13 @@ function DeviceListModal({ open, onClose, devices, onSelect, isLoading, error }:
 				onClick={e => e.stopPropagation()}
 			>
 				{/* 右上バツボタン */}
-				<button
-					className="absolute top-4 right-4 w-10 h-10 rounded-lg bg-transparent hover:bg-gray-700 flex items-center justify-center text-xl font-bold text-white focus:outline-none transition-colors duration-300"
+				<Button
+					className="absolute top-4 right-4 w-10 h-10 rounded-lg bg-transparent hover:bg-gray-700 flex items-center justify-center text-xl font-bold text-white !p-0"
 					onClick={onClose}
 					aria-label="モーダルを閉じる"
 				>
-					×
-				</button>
+					<XMarkIcon className="size-5 text-white" />
+				</Button>
 				<h2 className="text-white text-lg mb-4">Select Device</h2>
 				{error && <div className="mb-4 bg-red-900 text-white px-4 py-2 rounded shadow-lg">{error}</div>}
 				{isLoading ? (
@@ -119,7 +120,6 @@ function App() {
 	const [devices, setDevices] = useState<BleDeviceInfo[]>([]);
 	// モーダル表示状態
 	const [isModalOpen, setIsModalOpen] = useState(false);
-	// isLoadingを2つに分離
 	const [isDeviceLoading, setIsDeviceLoading] = useState(false);
 	const [isBatteryLoading, setIsBatteryLoading] = useState(false);
 	const [error, setError] = useState("");
@@ -187,6 +187,26 @@ function App() {
 		setIsModalOpen(false);
 	};
 
+	// バッテリー情報を更新する関数
+	const updateBatteryInfo = async (device: RegisteredDevice) => {
+		let attempts = 0;
+		const maxAttempts = device.isDisconnected ? 1 : 3;
+		while (attempts < maxAttempts) {
+			printRust(`Updating battery info for: ${device.id} (attempt ${attempts + 1} of ${maxAttempts})`);
+			try {
+				const info = await getBatteryInfo(device.id);
+				setRegisteredDevices(prev => prev.map(d => d.id === device.id ? { ...d, batteryInfos: Array.isArray(info) ? info : [info], isDisconnected: false } : d));
+				return;
+			} catch {
+				attempts++;
+				if (attempts >= maxAttempts) {
+					setRegisteredDevices(prev => prev.map(d => d.id === device.id ? { ...d, isDisconnected: true } : d));
+				}
+			}
+			await sleep(1000);
+		}
+	};
+
 	// モーダルを閉じたらエラーも消す
 	const handleCloseModal = () => {
 		setIsModalOpen(false);
@@ -199,6 +219,13 @@ function App() {
 		await fetchDevices();
 	};
 
+	// リロードボタン押下時
+	const handleReload = async () => {
+		setIsBatteryLoading(true);
+		await Promise.all(registeredDevices.map(updateBatteryInfo));
+		setIsBatteryLoading(false);
+	};
+
 	// ウィンドウサイズ変更
 	useEffect(() => {
 		resizeWindowToContent();
@@ -208,28 +235,8 @@ function App() {
 	useEffect(() => {
 		let isUnmounted = false;
 
-		// バッテリー情報を更新する関数
-		const updateBatteryInfo = async (device: RegisteredDevice) => {
-			if (isUnmounted) return;
-			let attempts = 0;
-			const maxAttempts = device.isDisconnected ? 1 : 3;
-			while (attempts < maxAttempts) {
-				printRust(`Updating battery info for: ${device.id} (attempt ${attempts + 1} of ${maxAttempts})`);
-				try {
-					const info = await getBatteryInfo(device.id);
-					setRegisteredDevices(prev => prev.map(d => d.id === device.id ? { ...d, batteryInfos: Array.isArray(info) ? info : [info], isDisconnected: false } : d));
-					return;
-				} catch {
-					attempts++;
-					if (attempts >= maxAttempts) {
-						setRegisteredDevices(prev => prev.map(d => d.id === device.id ? { ...d, isDisconnected: true } : d));
-					}
-				}
-				await sleep(1000);
-			}
-		};
-
 		const interval = setInterval(() => {
+			if(isUnmounted) return;
 			registeredDevices.forEach(updateBatteryInfo);
 		}, 10000);
 
@@ -241,15 +248,53 @@ function App() {
 
 	// UI
 	return (
-		<div id="app" className={`text-white relative min-w-[300px] p-2 ${registeredDevices.length === 0 || isModalOpen ? 'min-h-[300px]' : ''}`}>
-			{/* 右上+ボタン */}
-			<Button
-				className="absolute top-2 right-2 w-10 h-10 rounded-lg bg-transparent hover:bg-gray-700 flex items-center justify-center text-2xl shadow-lg text-white"
-				onClick={handleOpenModal}
-				aria-label="Add Device"
-			>
-				＋
-			</Button>
+		<div id="app" className={`text-white relative w-[300px] p-2 ${
+			registeredDevices.length === 0 ? 'h-[300px] max-h-[300px]' : isModalOpen ? 'min-h-[300px]' : ''
+		}`}>
+			<div>
+				{/* デバッグモード切り替えボタン */}
+				{IS_DEV && (
+					<div className="fixed top-4 left-4">
+						<button
+							className={`px-3 py-1 rounded-lg text-sm ${isDebugMode ? 'bg-yellow-600' : 'bg-gray-600'} hover:opacity-80 transition-opacity`}
+							onClick={toggleDebugMode}
+						>
+							{isDebugMode ? 'Debug Mode' : 'Production Mode'}
+						</button>
+					</div>
+				)}
+
+				<div className="flex flex-row ml-auto justify-end">
+					{/* 右上+ボタン */}
+					<Button
+						className="w-10 h-10 rounded-lg bg-transparent hover:bg-gray-700 flex items-center justify-center text-2xl shadow-lg text-white !p-0 !px-0 !py-0"
+						onClick={handleOpenModal}
+						aria-label="Add Device"
+					>
+						<PlusIcon className="size-5 text-white text-xl" />
+					</Button>
+
+					{/* リロードボタン */}
+					<Button
+						className={`w-10 h-10 rounded-lg bg-transparent flex items-center justify-center text-2xl shadow-lg !p-0 ${isBatteryLoading || registeredDevices.length === 0 ? '!text-gray-400 hover:bg-transparent' : '!text-white hover:bg-gray-700'}`}
+						onClick={handleReload}
+						aria-label="Reload"
+						disabled={isBatteryLoading || registeredDevices.length === 0}
+					>
+						<ArrowPathIcon className="size-5 text-xl" />
+					</Button>
+
+					{/* 設定ボタン */}
+					<Button
+						className="w-10 h-10 rounded-lg bg-transparent hover:bg-gray-700 flex items-center justify-center text-2xl shadow-lg text-white !p-0"
+						onClick={() => {}}
+						aria-label="Settings"
+					>
+						<Cog8ToothIcon className="size-5 text-white text-xl" />
+					</Button>
+				</div>
+			</div>
+
 			{/* モーダル */}
 			<DeviceListModal
 				open={isModalOpen}
@@ -259,21 +304,10 @@ function App() {
 				isLoading={isDeviceLoading}
 				error={error}
 			/>
-			{/* デバッグモード切り替えボタン */}
-			{IS_DEV && (
-				<div className="fixed top-4 left-4">
-					<button
-						className={`px-3 py-1 rounded-lg text-sm ${isDebugMode ? 'bg-yellow-600' : 'bg-gray-600'} hover:opacity-80 transition-opacity`}
-						onClick={toggleDebugMode}
-					>
-						{isDebugMode ? 'Debug Mode' : 'Production Mode'}
-					</button>
-				</div>
-			)}
 
 			{/* デバイス未登録時 */}
 			{registeredDevices.length === 0 ? (
-				<div className="flex flex-col items-center justify-center h-full min-h-[300px] space-y-6">
+				<div className="flex flex-col items-center justify-center h-full gap-6">
 					<h1 className="text-2xl">No devices registered</h1>
 					<Button onClick={handleOpenModal}>
 						Add Device
@@ -281,7 +315,7 @@ function App() {
 				</div>
 			) : (
 				/* デバイス登録時 */
-				<main className="container mx-auto pt-10">
+				<main className="container mx-auto">
 					<RegisteredDevicesPanel
 						registeredDevices={registeredDevices}
 						setRegisteredDevices={setRegisteredDevices}

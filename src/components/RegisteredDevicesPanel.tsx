@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import BatteryIcon from "@/components/BatteryIcon";
 import type { RegisteredDevice } from "@/App";
 import { Button } from "@/components/Button";
+import { EllipsisHorizontalIcon } from "@heroicons/react/24/outline";
 
 interface DeviceListProps {
 	registeredDevices: RegisteredDevice[];
@@ -18,23 +19,19 @@ const RegisteredDevicesPanel: React.FC<DeviceListProps> = ({
 
 	return (
 		<div className="max-w-3xl mx-auto rounded-xl shadow-md overflow-hidden">
-			<div className="p-4">
+			<div className="p-3">
 				<div className="space-y-4">
 					{registeredDevices.map((device, deviceIdx) => (
 						<div key={device.id} className="relative group bg-gray-800 rounded-lg p-4">
 							{/* メニュー（右上） */}
 							<div className="absolute top-2 right-2 z-10">
-								<button
-									className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 group-hover:opacity-100 opacity-0 hover:bg-gray-700 hover:text-white text-2xl focus:outline-none transition-colors duration-200"
+								<Button
+									className="w-10 h-8 text-gray-400 group-hover:opacity-100 opacity-0 bg-transparent hover:bg-gray-700 hover:text-white !p-0"
 									onClick={() => handleMenuOpen(device.id)}
 									aria-label="Open menu"
 								>
-									<span className="flex flex-row items-center justify-center gap-0.5">
-										<span className="w-1 h-1 bg-current rounded-full"></span>
-										<span className="w-1 h-1 bg-current rounded-full"></span>
-										<span className="w-1 h-1 bg-current rounded-full"></span>
-									</span>
-								</button>
+									<EllipsisHorizontalIcon className="size-6 mx-auto" />
+								</Button>
 								{menuOpen === device.id && (
 									<div className={`absolute right-0 w-24 bg-gray-900 text-sm border border-gray-700 rounded-lg shadow-lg z-20`}>
 										{ deviceIdx !== 0 && (
