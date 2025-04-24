@@ -240,8 +240,7 @@ function App() {
 						<SettingsScreen
 							config={config}
 							setConfig={setConfig}
-							onSave={async () => { await setConfig(config); setState(State.main); }}
-							onCancel={() => setState(State.main)}
+							onExit={async () => { await setConfig(config); setState(State.main); }}
 						/>
 					) : (
 						<>

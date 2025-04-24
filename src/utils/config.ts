@@ -9,13 +9,19 @@ export enum NotificationType {
 export type Config = {
 	fetchInterval: number;
 	autoStart: boolean;
-	pushNotificationOn: NotificationType[];
+	pushNotification: boolean;
+	pushNotificationOn: Record<NotificationType, boolean>;
 }
 
 export const defaultConfig: Config = {
 	fetchInterval: 30000,
 	autoStart: false,
-	pushNotificationOn: [NotificationType.LowBattery, NotificationType.Disconnected, NotificationType.Connected],
+	pushNotification: false,
+	pushNotificationOn: {
+		[NotificationType.Connected]: false,
+		[NotificationType.Disconnected]: false,
+		[NotificationType.LowBattery]: false,
+	},
 };
 
 const configStore = await load('config.json', { autoSave: true });

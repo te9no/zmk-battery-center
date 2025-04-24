@@ -45,9 +45,9 @@ const BatteryIcon: React.FC<BatteryIconProps> = ({ percentage, className = "", s
       className={className}
     >
       {/* バッテリー外枠 */}
-      <rect x={left} y={top} width={frameWidth} height={frameHeight} rx="10%" className="stroke-ring stroke-2 fill-none" />
+      <rect x={left} y={top} width={frameWidth} height={frameHeight} rx="10%" className="stroke-card-foreground/60 stroke-2 fill-none" />
       {/* バッテリー端子 */}
-      <rect x={terminalLeft} y={terminalTop} width={terminalWidth} height={terminalHeight} rx="10%" className="fill-ring" />
+      <rect x={terminalLeft} y={terminalTop} width={terminalWidth} height={terminalHeight} rx="10%" className="fill-card-foreground/60" />
       {/* バッテリー残量 */}
       <rect x={fillLeft} y={fillTop} width={fillWidth} height={fillHeight} rx="10%" fill={color} />
     </svg>
