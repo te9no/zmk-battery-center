@@ -1,6 +1,6 @@
 import { load } from '@tauri-apps/plugin-store';
 
-enum NotificationType {
+export enum NotificationType {
 	LowBattery = 'low_battery',
 	Disconnected = 'disconnected',
 	Connected = 'connected',
@@ -8,11 +8,13 @@ enum NotificationType {
 
 export type Config = {
 	fetchInterval: number;
+	autoStart: boolean;
 	pushNotificationOn: NotificationType[];
 }
 
 export const defaultConfig: Config = {
 	fetchInterval: 30000,
+	autoStart: false,
 	pushNotificationOn: [NotificationType.LowBattery, NotificationType.Disconnected, NotificationType.Connected],
 };
 
