@@ -143,7 +143,7 @@ function App() {
 	// バッテリー情報を更新する関数
 	const updateBatteryInfo = async (device: RegisteredDevice) => {
 		const isDisconnectedPrev = device.isDisconnected;
-		const isLowBatteryPrev = device.batteryInfos.map(info => info.battery_level !== null ? info.battery_level <= 48 : false); // Regard as not low battery if battery_level is null
+		const isLowBatteryPrev = device.batteryInfos.map(info => info.battery_level !== null ? info.battery_level <= 20 : false); // Regard as not low battery if battery_level is null
 
 		let attempts = 0;
 		const maxAttempts = isDisconnectedPrev ? 1 : 3;
@@ -155,7 +155,7 @@ function App() {
 				setRegisteredDevices(prev => prev.map(d => d.id === device.id ? { ...d, batteryInfos: Array.isArray(info) ? info : [info], isDisconnected: false } : d));
 
 				if(isDisconnectedPrev && config.pushNotification && config.pushNotificationWhen[NotificationType.Connected]){
-					sendNotification(`${device.name} has been connected.`);
+					await sendNotification(`${device.name} has been connected.`);
 				}
 				return;
 			} catch {
@@ -164,7 +164,7 @@ function App() {
 					setRegisteredDevices(prev => prev.map(d => d.id === device.id ? { ...d, isDisconnected: true } : d));
 
 					if(!isDisconnectedPrev && config.pushNotification && config.pushNotificationWhen[NotificationType.Disconnected]){
-						sendNotification(`${device.name} has been disconnected.`);
+						await sendNotification(`${device.name} has been disconnected.`);
 					}
 				}
 			}
@@ -172,7 +172,7 @@ function App() {
 		}
 
 		if(config.pushNotification && config.pushNotificationWhen[NotificationType.LowBattery]){
-			const isLowBattery = device.batteryInfos.map(info => info.battery_level !== null ? info.battery_level <= 480 : false);
+			const isLowBattery = device.batteryInfos.map(info => info.battery_level !== null ? info.battery_level <= 20 : false);
 			for(let i = 0; i < device.batteryInfos.length; i++){
 				if(!isLowBatteryPrev[i] && isLowBattery[i]){
 					sendNotification(`${device.name}${
