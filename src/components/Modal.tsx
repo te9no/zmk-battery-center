@@ -43,7 +43,7 @@ const Modal: React.FC<ModalProps> = ({
 	if (!show) return null;
 	return (
 		<div
-			className={`fixed inset-0 z-50 flex items-center justify-center bg-background/60 transition-opacity duration-200 ${animate ? 'opacity-100' : 'opacity-0'}`}
+			className={`fixed inset-0 z-50 flex items-center justify-center bg-background/80 rounded-[10px] transition-opacity duration-200 ${animate ? 'opacity-100' : 'opacity-0'}`}
 			onClick={onClose}
 		>
 			<div

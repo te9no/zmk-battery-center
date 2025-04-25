@@ -248,9 +248,10 @@ function App() {
 
 	// UI
 	return (
-		<div id="app" className={`relative w-[300px] p-2 ${
-			state === State.welcome ? 'h-[300px] max-h-[300px]' :
-			state === State.addDeviceModal || state === State.fetchingDevices || state === State.settings ? 'min-h-[300px]' : ''
+		<div id="app" className={`relative w-[300px] flex flex-col bg-background text-foreground p-2 ${
+			state === State.welcome ? 'h-[300px]' :
+			state === State.main ? '' :
+			'min-h-[300px]'
 		}`}>
 			{state === State.settings ? (
 				<SettingsScreen
@@ -334,8 +335,8 @@ function App() {
 					)}
 
 					{/* デバイス未登録時 */}
-					{state === State.welcome && (
-						<div className="flex flex-col items-center justify-center h-full gap-6">
+					{registeredDevices.length === 0 && (
+						<div className="flex-1 flex flex-col items-center justify-center gap-6">
 							<h1 className="text-2xl text-foreground">No devices registered</h1>
 							<Button className="bg-primary text-primary-foreground hover:bg-primary/90" onClick={handleOpenModal}>
 								Add Device
@@ -344,7 +345,7 @@ function App() {
 					)}
 
 					{/* デバイス登録時 */}
-					{state === State.main && registeredDevices.length > 0 && (
+					{registeredDevices.length > 0 && (
 						<main className="container mx-auto">
 							<RegisteredDevicesPanel
 								registeredDevices={registeredDevices}

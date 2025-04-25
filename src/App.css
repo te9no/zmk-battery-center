@@ -5,13 +5,18 @@
 
 html {
   font-size: 14px;
-  background-color: var(--background);
   user-select: none;
   overflow: hidden;
 }
 
-html, body {
+#app {
   border-radius: 10px;
+}
+
+#root {
+  background-color: var(--background);
+  border-radius: 10px;
+  overflow: hidden;
 }
 
 @theme inline {
@@ -126,7 +131,7 @@ html, body {
   * {
     @apply border-border outline-ring/50;
   }
-  body {
+  /* body {
     @apply bg-background text-foreground;
-  }
+  } */
 }
