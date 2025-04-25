@@ -25,7 +25,7 @@ export async function requestNotificationPermission(): Promise<boolean> {
 	* @param message - The message of the notification
 	* @returns true if the notification was sent successfully, false otherwise
 */
-export async function sendNotification(message: string, title: string = 'zmk-battery-monitor'): Promise<boolean> {
+export async function sendNotification(title: string, message?: string): Promise<boolean> {
 	const isGranted = await requestNotificationPermission();
 	if (isGranted) {
 		const options: NotificationOptions = {
