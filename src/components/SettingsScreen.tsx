@@ -29,14 +29,14 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({
 			{/* 右上閉じるボタン */}
 			<Button
 				type="button"
-				className="absolute top-4 right-4 w-10 h-10 rounded-lg bg-transparent hover:bg-secondary flex items-center justify-center text-xl font-bold text-foreground !p-0"
+				className="absolute top-2 right-2 w-10 h-10 rounded-lg bg-transparent hover:bg-secondary flex items-center justify-center text-xl font-bold text-foreground !p-0"
 				aria-label="Close"
 				onClick={onExit}
 			>
 				<XMarkIcon className="size-5 text-foreground" />
 			</Button>
 
-			<div className="flex flex-col gap-3 w-full p-4 mt-6">
+			<div className="flex flex-col gap-3 w-full p-4">
 				{/* テーマ */}
 				<div className="flex justify-between items-center">
 					<span>Theme</span>
