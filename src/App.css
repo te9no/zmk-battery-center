@@ -10,6 +10,10 @@ html {
   overflow: hidden;
 }
 
+html, body {
+  border-radius: 10px;
+}
+
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);

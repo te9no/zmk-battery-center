@@ -10,6 +10,7 @@
     "frontendDist": "../dist"
   },
   "app": {
+    "macOSPrivateApi": true,
     "windows": [
       {
         "title": "zmk-battery-center",
@@ -18,9 +19,8 @@
         "visible": false,
         "decorations": false,
         "skipTaskbar": true,
-        "shadow": true,
-        "resizable": false,
-        "center": true
+        "shadow": false,
+        "transparent": true
       }
     ],
     "trayIcon": {
