@@ -25,7 +25,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({
 	}
 
 	return (
-		<div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-card h-full w-full p-4">
+		<div className="fixed inset-0 z-50 flex flex-col items-center justify-center h-full w-full p-4">
 			{/* 右上閉じるボタン */}
 			<Button
 				type="button"
@@ -42,16 +42,29 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({
 					<span>Theme</span>
 					<div className="flex-1 flex justify-end gap-2">
 						{[
-							{ key: "light", icon: <Sun className="w-5 h-5" />, label: "Light" },
-							{ key: "dark", icon: <Moon className="w-5 h-5" />, label: "Dark" },
+							{ key: "light", icon: (
+								<div className="flex flex-col items-center justify-center">
+									<Sun className="w-6 h-6" />
+									<span className="text-xs">Light</span>
+								</div>
+							), label: "Light" },
+							{ key: "dark", icon: (
+								<div className="flex flex-col items-center justify-center">
+									<Moon className="w-6 h-6" />
+									<span className="text-xs">Dark</span>
+								</div>
+							), label: "Dark" },
 							{ key: "system", icon: (
-								<span className="relative w-5 h-5 flex items-center justify-center">
-									<Sun className="absolute w-4 h-4 left-[-5px] top-[-5px]" />
-									<Moon className="absolute w-4 h-4 right-[-5px] bottom-[-5px]" />
-									<svg className="absolute left-0 top-0 w-6 h-6 pointer-events-none" width="24" height="24">
-										<line x1="0" y1="18" x2="18" y2="0" stroke="currentColor" strokeWidth="0.5" strokeLinecap="round" />
-									</svg>
-								</span>
+								<div className="flex flex-col items-center justify-center">
+									<span className="relative w-6 h-6 flex items-center justify-center">
+										<Sun className="absolute w-4 h-4 left-[-2px] top-[-2px]" />
+										<Moon className="absolute w-4 h-4 right-[-2px] bottom-[-2px]" />
+										<svg className="absolute left-0 top-0 w-6 h-6 pointer-events-none" width="24" height="24">
+											<line x1="0" y1="20" x2="20" y2="0" stroke="currentColor" strokeWidth="0.5" strokeLinecap="round" />
+										</svg>
+									</span>
+									<span className="text-xs">System</span>
+								</div>
 							), label: "System" },
 						].map(opt => (
 							<Button
@@ -60,7 +73,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({
 									setTheme(opt.key as Theme);
 									setConfig(c => ({ ...c, theme: opt.key as Theme }));
 								}}
-								className={`relative w-10 h-10 flex items-center justify-center rounded-lg transition-colors
+								className={`relative w-12 h-12 flex items-center justify-center rounded-lg transition-colors
 									${theme === opt.key ? 'bg-secondary' : 'bg-transparent'}
 								`}
 								aria-label={opt.label}
@@ -69,15 +82,6 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({
 							</Button>
 						))}
 					</div>
-				</div>
-
-				{/* 自動起動設定 */}
-				<div className="flex justify-between">
-					<span>Auto start</span>
-					<Switch
-						checked={config.autoStart}
-						onCheckedChange={checked => setConfig(c => ({ ...c, autoStart: checked }))}
-					/>
 				</div>
 
 				{/* バッテリー取得間隔 */}
@@ -113,17 +117,25 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({
 					</div>
 				</div>
 
-				{/* プッシュ通知設定 */}
+				{/* 自動起動設定 */}
 				<div className="flex justify-between">
-					<span className="">Push notifications</span>
+					<span>Auto start</span>
 					<Switch
-						checked={config.pushNotification}
-						onCheckedChange={checked => setConfig(c => ({ ...c, pushNotification: checked }))}
+						checked={config.autoStart}
+						onCheckedChange={checked => setConfig(c => ({ ...c, autoStart: checked }))}
 					/>
 				</div>
 
-				<div className="flex flex-col items-start w-full">
-					<ul className={`w-full pl-2 ${!config.pushNotification ? ' text-muted-foreground' : 'text-card-foreground'}`}>
+				{/* プッシュ通知設定 */}
+				<div className="flex flex-col w-full gap-2">
+					<div className="flex justify-between">
+						<span className="">Push notifications</span>
+						<Switch
+							checked={config.pushNotification}
+							onCheckedChange={checked => setConfig(c => ({ ...c, pushNotification: checked }))}
+						/>
+					</div>
+					<ul className={`w-full pl-2 space-y-0.5 ${!config.pushNotification ? ' text-muted-foreground' : 'text-card-foreground'}`}>
 						<li className="flex justify-between">
 							<div>
 								<Dot /> when battery level ≤ 20%
