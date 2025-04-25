@@ -1,6 +1,7 @@
 import { load, type Store } from '@tauri-apps/plugin-store';
 import { printRust } from './common';
 import { Theme } from '@/context/theme-provider';
+import { enable as enableAutostart, isEnabled as isAutostartEnabled, disable as disableAutostart } from '@tauri-apps/plugin-autostart';
 
 export enum NotificationType {
 	LowBattery = 'low_battery',
@@ -47,5 +48,14 @@ export async function getConfig(): Promise<Config> {
 
 export async function setConfig(config: Config) {
 	await getConfigStore().then((store: Store) => store.set('config', config));
+	const isEnabled = await isAutostartEnabled();
+
+	// Set/Unset autostart
+	if (config.autoStart && !isEnabled) {
+		await enableAutostart();
+	} else if (!config.autoStart && isEnabled) {
+		await disableAutostart();
+	}
+
 	printRust(`Set config: ${JSON.stringify(config, null, 4)}`);
 };
