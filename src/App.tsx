@@ -168,7 +168,7 @@ function App() {
 					}
 				}
 			}
-			await sleep(1000);
+			await sleep(500);
 		}
 
 		if(config.pushNotification && config.pushNotificationWhen[NotificationType.LowBattery]){
@@ -209,9 +209,7 @@ function App() {
 
 	// ウィンドウサイズ変更
 	useEffect(() => {
-		if(state !== State.fetchingBatteryInfo) {
-			resizeWindowToContent();
-		}
+		resizeWindowToContent();
 	}, [registeredDevices, state]);
 
 	useEffect(() => {
@@ -248,7 +246,7 @@ function App() {
 
 	// UI
 	return (
-		<div id="app" className={`relative w-[300px] flex flex-col bg-background text-foreground p-2 ${
+		<div id="app" className={`relative w-[300px] flex flex-col bg-background text-foreground rounded-[10px] p-2 ${
 			state === State.welcome ? 'h-[300px]' :
 			state === State.main ? '' :
 			'min-h-[300px]'

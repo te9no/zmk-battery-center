@@ -9,10 +9,6 @@ html {
   overflow: hidden;
 }
 
-#app {
-  border-radius: 10px;
-}
-
 #root {
   background-color: var(--background);
   border-radius: 10px;
