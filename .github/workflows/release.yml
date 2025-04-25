@@ -10,30 +10,24 @@ permissions:
   contents: write
 
 jobs:
-  release:
-    runs-on: ubuntu-latest
-    outputs:
-      release_body: ${{ steps.release_notes.outputs.release_body }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Get version
-        id: get_version
-        run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
-      - name: Generate release notes
-        id: release_notes
-        run: |
-          git log --pretty=format:"- %s" $(git describe --tags --abbrev=0 HEAD^)..HEAD > release_notes.txt
-          echo "release_body<<EOF" >> $GITHUB_OUTPUT
-          echo "## v${{ steps.get_version.outputs.version }}" >> $GITHUB_OUTPUT
-          echo "" >> $GITHUB_OUTPUT
-          cat release_notes.txt >> $GITHUB_OUTPUT
-          echo "" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+  # create-release:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #       with:
+  #         fetch-depth: 0
 
-  test-tauri:
-    needs: release
+  #     - name: get-version-from-package-json
+  #       id: get_version
+  #       run: echo "version=$(jq -r '.version' package.json)" >> $GITHUB_OUTPUT
+
+  #     - name: Create Release
+  #       run: |
+  #         gh release create v${{steps.get_version.outputs.version}} --generate-notes --draft --prerelease
+  #       env:
+  #         GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+  build-and-release-tauri:
     strategy:
       fail-fast: true
       matrix:
@@ -95,7 +89,6 @@ jobs:
         with:
           tagName: v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version.
           releaseName: 'v__VERSION__'
-          releaseBody: ${{ needs.release.outputs.release_body }}
           releaseDraft: true
           prerelease: true
           args: ${{ matrix.args }}
