@@ -1,4 +1,6 @@
-import { load } from '@tauri-apps/plugin-store';
+import { load, type Store } from '@tauri-apps/plugin-store';
+import { printRust } from './common';
+import { Theme } from '@/components/theme-provider';
 
 export enum NotificationType {
 	LowBattery = 'low_battery',
@@ -7,33 +9,43 @@ export enum NotificationType {
 }
 
 export type Config = {
-	fetchInterval: number;
+	theme: Theme;
 	autoStart: boolean;
+	fetchInterval: number;
 	pushNotification: boolean;
-	pushNotificationOn: Record<NotificationType, boolean>;
+	pushNotificationWhen: Record<NotificationType, boolean>;
 }
 
 export const defaultConfig: Config = {
+	theme: 'dark',
 	fetchInterval: 30000,
 	autoStart: false,
 	pushNotification: false,
-	pushNotificationOn: {
+	pushNotificationWhen: {
 		[NotificationType.Connected]: false,
 		[NotificationType.Disconnected]: false,
 		[NotificationType.LowBattery]: false,
 	},
 };
 
-const configStore = await load('config.json', { autoSave: true });
+let configStoreInstance: Store | null = null;
 
-export const getConfig = async (): Promise<Config> => {
-	const config = await configStore.get<Config>('config');
+async function getConfigStore() {
+	if (!configStoreInstance) {
+		configStoreInstance = await load('config.json', { autoSave: true });
+	}
+	return configStoreInstance;
+}
+
+export async function getConfig(): Promise<Config> {
+	const config = await getConfigStore().then((store: Store) => store.get<Config>('config'));
 	return {
 		...defaultConfig,
 		...config,
 	};
 };
 
-export const setConfig = async (config: Config) => {
-	await configStore.set('config', config);
+export async function setConfig(config: Config) {
+	await getConfigStore().then((store: Store) => store.set('config', config));
+	printRust(`Set config: ${JSON.stringify(config, null, 4)}`);
 };

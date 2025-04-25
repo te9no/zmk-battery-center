@@ -1,24 +1,22 @@
 import React from "react";
 import Button from "./Button";
-import { NotificationType, type Config } from "../utils/config";
+import { NotificationType } from "../utils/config";
 import { useTheme, type Theme } from "@/components/theme-provider";
 import { Moon, Sun } from "lucide-react";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch"
 import { XMarkIcon } from "@heroicons/react/24/outline";
+import { useConfigContext } from "@/context/ConfigContext";
 
 interface SettingsScreenProps {
-	config: Config;
-	setConfig: React.Dispatch<React.SetStateAction<Config>>;
 	onExit: () => Promise<void>;
 }
 
 const SettingsScreen: React.FC<SettingsScreenProps> = ({
-	config,
-	setConfig,
 	onExit
 }) => {
 	const { setTheme, theme } = useTheme();
+	const { config, setConfig } = useConfigContext();
 
 	return (
 		<div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background/95">
@@ -57,7 +55,10 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({
 							].map(opt => (
 								<Button
 									key={opt.key}
-									onClick={() => setTheme(opt.key as Theme)}
+									onClick={() => {
+										setTheme(opt.key as Theme);
+										setConfig(c => ({ ...c, theme: opt.key as Theme }));
+									}}
 									className={`relative w-10 h-10 flex items-center justify-center rounded-lg transition-colors
 										${theme === opt.key ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground'}
 									`}
@@ -126,34 +127,34 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({
 								<span className="mr-1 font-bold">•</span>
 								<span className="min-w-50">when battery level ≤ 20%</span>
 								<Switch
-									checked={config.pushNotificationOn[NotificationType.LowBattery]}
+									checked={config.pushNotificationWhen[NotificationType.LowBattery]}
 									onCheckedChange={checked => setConfig(c => ({
 										...c,
-										pushNotificationOn: { ...c.pushNotificationOn, [NotificationType.LowBattery]: checked }
+										pushNotificationWhen: { ...c.pushNotificationWhen, [NotificationType.LowBattery]: checked }
 									}))}
 									disabled={!config.pushNotification}
 								/>
 							</li>
 							<li className="flex gap-2">
 								<span className="mr-1 font-bold">•</span>
-								<span className="min-w-50">on device connect</span>
+								<span className="min-w-50">when device connected</span>
 								<Switch
-									checked={config.pushNotificationOn[NotificationType.Connected]}
+									checked={config.pushNotificationWhen[NotificationType.Connected]}
 									onCheckedChange={checked => setConfig(c => ({
 										...c,
-										pushNotificationOn: { ...c.pushNotificationOn, [NotificationType.Connected]: checked }
+										pushNotificationWhen: { ...c.pushNotificationWhen, [NotificationType.Connected]: checked }
 									}))}
 									disabled={!config.pushNotification}
 								/>
 							</li>
 							<li className="flex gap-2">
 								<span className="mr-1 font-bold">•</span>
-								<span className="min-w-50">on device disconnect</span>
+								<span className="min-w-50">when device disconnected</span>
 								<Switch
-									checked={config.pushNotificationOn[NotificationType.Disconnected]}
+									checked={config.pushNotificationWhen[NotificationType.Disconnected]}
 									onCheckedChange={checked => setConfig(c => ({
 										...c,
-										pushNotificationOn: { ...c.pushNotificationOn, [NotificationType.Disconnected]: checked }
+										pushNotificationWhen: { ...c.pushNotificationWhen, [NotificationType.Disconnected]: checked }
 									}))}
 									disabled={!config.pushNotification}
 								/>
