@@ -13,23 +13,29 @@ const ConfigContext = createContext<ConfigContextType | undefined>(undefined);
 // Providerコンポーネント
 export const ConfigProvider = ({ children }: { children: ReactNode }) => {
 	const [config, setConfig] = useState<Config>(defaultConfig);
+	const [isLoaded, setIsLoaded] = useState(false);
 
 	// 初期設定をロード
 	useEffect(() => {
 		let isMounted = true;
 		(async () => {
 			const loaded = await getConfig();
-			if (isMounted) setConfig(loaded);
+			if (isMounted) {
+				setConfig(loaded);
+				setIsLoaded(true);
+			}
 		})();
 		return () => { isMounted = false; };
 	}, []);
 
 	// 設定を永続化
 	useEffect(() => {
-		(async () => {
-			await storeSetConfig(config);
-		})();
-	}, [config]);
+		if (isLoaded) {
+			(async () => {
+				await storeSetConfig(config);
+			})();
+		}
+	}, [config, isLoaded]);
 
 	return (
 		<ConfigContext.Provider value={{ config, setConfig }}>

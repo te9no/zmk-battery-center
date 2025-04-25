@@ -41,6 +41,7 @@ async function getConfigStore() {
 
 export async function getConfig(): Promise<Config> {
 	const config = await getConfigStore().then((store: Store) => store.get<Config>('config'));
+	printRust(`Loaded config: ${JSON.stringify(config, null, 4)}`);
 	return {
 		...defaultConfig,
 		...config,
