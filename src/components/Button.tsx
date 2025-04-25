@@ -5,9 +5,11 @@ type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 export const Button: React.FC<ButtonProps> = ({ children, className = "", ...props }) => {
+  // w-10 h-10が含まれていればpaddingを0にする
+  const isIconButton = className.includes("w-10") && className.includes("h-10");
   return (
     <button
-      className={`px-4 py-3 bg-blue-500 text-white rounded-lg text-xl shadow-lg hover:bg-blue-600 transition-colors duration-300 ${className}`}
+      className={`rounded-lg text-xl transition-colors duration-300 ${isIconButton ? '!p-0' : 'px-4 py-3'} ${className}`}
       {...props}
     >
       {children}

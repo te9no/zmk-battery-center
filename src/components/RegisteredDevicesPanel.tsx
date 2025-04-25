@@ -18,25 +18,25 @@ const RegisteredDevicesPanel: React.FC<DeviceListProps> = ({
 	const handleMenuClose = () => setMenuOpen(null);
 
 	return (
-		<div className="max-w-3xl mx-auto rounded-xl shadow-md overflow-hidden">
+		<div className="max-w-3xl mx-auto rounded-xl overflow-hidden">
 			<div className="p-4 pt-2">
 				<div className="space-y-4">
 					{registeredDevices.map((device, deviceIdx) => (
-						<div key={device.id} className="relative group bg-gray-800 rounded-lg p-4">
+						<div key={device.id} className="relative group bg-card rounded-lg p-4">
 							{/* メニュー（右上） */}
 							<div className="absolute top-2 right-2 z-10">
 								<Button
-									className="w-10 h-8 text-gray-400 group-hover:opacity-100 opacity-0 bg-transparent hover:bg-gray-700 hover:text-white !p-0"
+									className="w-10 h-8 text-muted-foreground group-hover:opacity-100 opacity-0 bg-transparent hover:bg-muted hover:text-foreground !p-0"
 									onClick={() => handleMenuOpen(device.id)}
 									aria-label="Open menu"
 								>
 									<EllipsisHorizontalIcon className="size-6 mx-auto" />
 								</Button>
 								{menuOpen === device.id && (
-									<div className={`${deviceIdx !== registeredDevices.length - 1 ? 'absolute right-0' : 'fixed bottom-4 right-4'} w-30 bg-gray-900 text-sm border border-gray-700 rounded-lg shadow-lg z-20`}>
+									<div className={`${deviceIdx !== registeredDevices.length - 1 ? 'absolute right-0' : 'fixed bottom-4 right-4'} w-30 bg-popover text-popover-foreground border border-border rounded-lg shadow-lg z-20`}>
 										{ deviceIdx !== 0 && (
 											<Button
-												className="w-full text-left rounded-none !text-sm !px-3 !py-2 bg-gray-900 hover:bg-gray-800 rounded-t-lg"
+												className="w-full text-left !text-sm !px-3 !py-2 bg-popover text-popover-foreground hover:bg-muted"
 												onClick={() => {
 													if (deviceIdx > 0) {
 														setRegisteredDevices(prev => {
@@ -53,7 +53,7 @@ const RegisteredDevicesPanel: React.FC<DeviceListProps> = ({
 										)}
 										{ deviceIdx !== registeredDevices.length - 1 && (
 											<Button
-												className="w-full text-left rounded-none !text-sm !px-3 !py-2 bg-gray-900 hover:bg-gray-800"
+												className="w-full text-left !text-sm !px-3 !py-2 bg-popover text-popover-foreground hover:bg-muted"
 												onClick={() => {
 													if (deviceIdx < registeredDevices.length - 1) {
 														setRegisteredDevices(prev => {
@@ -69,7 +69,7 @@ const RegisteredDevicesPanel: React.FC<DeviceListProps> = ({
 											</Button>
 										)}
 										<Button
-											className="w-full text-left rounded-none !text-sm !px-3 !py-2 bg-gray-900 !text-red-500 hover:bg-gray-800 rounded-b-lg"
+											className="w-full text-left !text-sm !px-3 !py-2 bg-popover text-destructive hover:bg-muted"
 											onClick={() => { setRegisteredDevices(prev => prev.filter(d => d.id !== device.id)); handleMenuClose(); }}
 										>
 											Remove
@@ -86,20 +86,20 @@ const RegisteredDevicesPanel: React.FC<DeviceListProps> = ({
 							<div className="flex items-center gap-2 mb-2">
 								<span className={`text-lg font-semibold truncate ${device.isDisconnected ? 'max-w-[150px]' : 'max-w-[200px]'}`}>{device.name}</span>
 								{device.isDisconnected && (
-									<span className="text-xs text-red-400">disconnected</span>
+									<span className="text-xs text-destructive">disconnected</span>
 								)}
 							</div>
 
 							{/* バッテリー情報リスト */}
 							{device.batteryInfos.length === 0 ? (
-								<div className="text-gray-400 mx-auto">No battery information</div>
+								<div className="text-muted-foreground mx-auto">No battery information</div>
 							) : (
 								<div className="space-y-1 ml-7">
 									{device.batteryInfos.map((b, propIdx) => (
 										<div key={propIdx} className="flex items-center gap-4">
-											<span className="min-w-[90px] text-gray-300">{b.user_descriptor ?? "Central"}</span>
+											<span className="min-w-[90px] text-card-foreground/80">{b.user_descriptor ?? "Central"}</span>
 											<BatteryIcon percentage={b.battery_level ?? 0} />
-											<span className="w-[35px] min-w-[35px] text-right text-sm">{b.battery_level !== null ? `${b.battery_level}%` : "N/A"}</span>
+											<span className="w-[35px] min-w-[35px] text-card-foreground/90 text-right text-sm">{b.battery_level !== null ? `${b.battery_level}%` : "N/A"}</span>
 										</div>
 									))}
 								</div>

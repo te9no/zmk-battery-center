@@ -9,7 +9,7 @@ import { printRust, sleep } from "./utils/common";
 import { resizeWindowToContent } from "./utils/window";
 import { PlusIcon, ArrowPathIcon, Cog8ToothIcon } from "@heroicons/react/24/outline";
 import Modal from "./components/Modal";
-import { getConfig, type Config, defaultConfig } from "./utils/config";
+import { useConfigContext } from "@/context/ConfigContext";
 import { load } from '@tauri-apps/plugin-store';
 import SettingsScreen from "@/components/SettingsScreen";
 
@@ -58,19 +58,13 @@ function App() {
 	const [error, setError] = useState("");
 
 	// config値
-	const [config, setConfig] = useState<Config>(defaultConfig);
+	const { config } = useConfigContext();
 
 	// 画面表示状態
 	const [state, setState] = useState<State>(State.welcome);
 
 	// 保存された値を取得
 	useEffect(() => {
-		const fetchConfig = async () => {
-			const config = await getConfig();
-			setConfig(config);
-		};
-		fetchConfig();
-
 		const fetchRegisteredDevices = async () => {
 			const deviceStore = await load('devices.json', { autoSave: true });
 			const devices = await deviceStore.get<RegisteredDevice[]>("devices");
@@ -229,125 +223,124 @@ function App() {
 
 	// UI
 	return (
-		<div id="app" className={`text-white relative w-[300px] p-2 ${
-			state === State.welcome ? 'h-[300px] max-h-[300px]' :
-			state === State.addDeviceModal || state === State.fetchingDevices || state === State.settings ? 'min-h-[300px]' : ''
-		}`}>
-			{state === State.settings ? (
-				<SettingsScreen
-					config={config}
-					setConfig={setConfig}
-					onSave={async () => { await setConfig(config); setState(State.main); }}
-					onCancel={() => setState(State.main)}
-				/>
-			) : (
-				<>
-					<div>
-						{/* デバッグモード切り替えボタン */}
-						{IS_DEV && (
-							<div className="fixed top-4 left-4">
-								<button
-									className={`px-3 py-1 rounded-lg text-sm ${isDebugMode ? 'bg-yellow-600' : 'bg-transparent text-transparent hover:text-white hover:bg-gray-600'} hover:opacity-80 transition duration-200`}
-									onClick={toggleDebugMode}
+		<>
+			<div id="app" className={`relative w-[300px] p-2 ${
+				state === State.welcome ? 'h-[300px] max-h-[300px]' :
+				state === State.addDeviceModal || state === State.fetchingDevices || state === State.settings ? 'min-h-[300px]' : ''
+			}`}>
+				{state === State.settings ? (
+					<SettingsScreen
+						onExit={async () => { setState(State.main); }}
+					/>
+				) : (
+					<>
+						<div>
+							{/* デバッグモード切り替えボタン */}
+							{IS_DEV && (
+								<div className="fixed top-4 left-4">
+									<button
+										className={`px-3 py-1 rounded-lg text-sm ${isDebugMode ? 'bg-yellow-600' : 'bg-transparent text-muted-foreground hover:text-foreground hover:bg-muted'} hover:opacity-80 transition duration-200`}
+										onClick={toggleDebugMode}
+									>
+										{isDebugMode ? 'Debug Mode' : 'Production Mode'}
+									</button>
+								</div>
+							)}
+
+							<div className="flex flex-row ml-auto justify-end">
+								{/* 右上+ボタン */}
+								<Button
+									className="w-10 h-10 rounded-lg bg-transparent flex items-center justify-center text-2xl !p-0 !px-0 !py-0 hover:bg-secondary"
+									onClick={handleOpenModal}
+									aria-label="Add Device"
 								>
-									{isDebugMode ? 'Debug Mode' : 'Production Mode'}
-								</button>
+									<PlusIcon className="size-5 text-xl" />
+								</Button>
+
+								{/* リロードボタン */}
+								<Button
+									className={`w-10 h-10 rounded-lg bg-transparent flex items-center justify-center text-2xl !p-0 ${state === State.fetchingBatteryInfo || state === State.welcome ? '!text-muted-foreground hover:bg-transparent' : '!text-foreground hover:bg-secondary'}`}
+									onClick={handleReload}
+									aria-label="Reload"
+									disabled={state === State.fetchingBatteryInfo || registeredDevices.length === 0}
+								>
+									<ArrowPathIcon className="size-5 text-xl" />
+								</Button>
+
+								{/* 設定ボタン */}
+								<Button
+									className="w-10 h-10 rounded-lg bg-transparent hover:bg-secondary flex items-center justify-center text-2xl !text-foreground !p-0"
+									onClick={() => setState(State.settings)}
+									aria-label="Settings"
+								>
+									<Cog8ToothIcon className="size-5 text-xl" />
+								</Button>
+							</div>
+						</div>
+
+						{/* モーダル（デバイス選択） */}
+						{[State.addDeviceModal, State.fetchingDevices].map(s => s as string).includes(state as string) && (
+							<Modal
+								open={true}
+								onClose={handleCloseModal}
+								title="Select Device"
+								isLoading={state === State.fetchingDevices}
+								error={error}
+								loadingText="Fetching devices..."
+							>
+								{(state as string) !== (State.fetchingDevices as string) && (
+									<ul className="max-h-60 overflow-y-auto rounded-sm">
+										{devices.filter(d => !registeredDevices.some(rd => rd.id === d.id)).length === 0 && (
+											<li className="text-muted-foreground">No devices found</li>
+										)}
+										{devices.filter(d => !registeredDevices.some(rd => rd.id === d.id)).map((d) => (
+											<li key={d.id}>
+												<Button
+													className="w-full text-left rounded-none bg-card text-card-foreground hover:bg-muted transition-colors duration-300 !p-2"
+													onClick={() => handleAddDevice(d.id)}
+													disabled={state === State.fetchingDevices}
+												>
+													{d.name}
+												</Button>
+											</li>
+										))}
+									</ul>
+								)}
+							</Modal>
+						)}
+
+						{/* デバイス未登録時 */}
+						{state === State.welcome && (
+							<div className="flex flex-col items-center justify-center h-full gap-6">
+								<h1 className="text-2xl text-foreground">No devices registered</h1>
+								<Button className="bg-primary text-primary-foreground hover:bg-primary/90" onClick={handleOpenModal}>
+									Add Device
+								</Button>
 							</div>
 						)}
 
-						<div className="flex flex-row ml-auto justify-end">
-							{/* 右上+ボタン */}
-							<Button
-								className="w-10 h-10 rounded-lg bg-transparent hover:bg-gray-700 flex items-center justify-center text-2xl shadow-lg text-white !p-0 !px-0 !py-0"
-								onClick={handleOpenModal}
-								aria-label="Add Device"
-							>
-								<PlusIcon className="size-5 text-white text-xl" />
-							</Button>
+						{/* デバイス登録時 */}
+						{state === State.main && registeredDevices.length > 0 && (
+							<main className="container mx-auto">
+								<RegisteredDevicesPanel
+									registeredDevices={registeredDevices}
+									setRegisteredDevices={setRegisteredDevices}
+								/>
+							</main>
+						)}
 
-							{/* リロードボタン */}
-							<Button
-								className={`w-10 h-10 rounded-lg bg-transparent flex items-center justify-center text-2xl shadow-lg !p-0 ${state === State.fetchingBatteryInfo || registeredDevices.length === 0 ? '!text-gray-400 hover:bg-transparent' : '!text-white hover:bg-gray-700'}`}
-								onClick={handleReload}
-								aria-label="Reload"
-								disabled={state === State.fetchingBatteryInfo || registeredDevices.length === 0}
-							>
-								<ArrowPathIcon className="size-5 text-xl" />
-							</Button>
-
-							{/* 設定ボタン */}
-							<Button
-								className="w-10 h-10 rounded-lg bg-transparent hover:bg-gray-700 flex items-center justify-center text-2xl shadow-lg text-white !p-0"
-								onClick={() => setState(State.settings)}
-								aria-label="Settings"
-							>
-								<Cog8ToothIcon className="size-5 text-white text-xl" />
-							</Button>
-						</div>
-					</div>
-
-					{/* モーダル（デバイス選択） */}
-					{[State.addDeviceModal, State.fetchingDevices].map(s => s as string).includes(state as string) && (
+						{/* Add Deviceでデバイス選択後のローディング表示 */}
 						<Modal
-							open={true}
-							onClose={handleCloseModal}
-							title="Select Device"
-							isLoading={state === State.fetchingDevices}
-							error={error}
-							loadingText="Fetching devices..."
-						>
-							{(state as string) !== (State.fetchingDevices as string) && (
-								<ul className="max-h-60 overflow-y-auto rounded-sm">
-									{devices.filter(d => !registeredDevices.some(rd => rd.id === d.id)).length === 0 && (
-										<li className="text-gray-400">No devices found</li>
-									)}
-									{devices.filter(d => !registeredDevices.some(rd => rd.id === d.id)).map((d) => (
-										<li key={d.id}>
-											<Button
-												className="w-full text-left rounded-none hover:bg-gray-700 text-white bg-gray-800 transition-colors duration-300 !p-2"
-												onClick={() => handleAddDevice(d.id)}
-												disabled={state === State.fetchingDevices}
-											>
-												{d.name}
-											</Button>
-										</li>
-									))}
-								</ul>
-							)}
-						</Modal>
-					)}
-
-					{/* デバイス未登録時 */}
-					{state === State.welcome && (
-						<div className="flex flex-col items-center justify-center h-full gap-6">
-							<h1 className="text-2xl">No devices registered</h1>
-							<Button onClick={handleOpenModal}>
-								Add Device
-							</Button>
-						</div>
-					)}
-
-					{/* デバイス登録時 */}
-					{state === State.main && registeredDevices.length > 0 && (
-						<main className="container mx-auto">
-							<RegisteredDevicesPanel
-								registeredDevices={registeredDevices}
-								setRegisteredDevices={setRegisteredDevices}
-							/>
-						</main>
-					)}
-
-					{/* Add Deviceでデバイス選択後のローディング表示 */}
-					<Modal
-						open={state === State.fetchingBatteryInfo}
-						onClose={() => {}}
-						isLoading={true}
-						loadingText="Fetching battery info..."
-						showCloseButton={false}
-					/>
-				</>
-			)}
-		</div>
+							open={state === State.fetchingBatteryInfo}
+							onClose={() => {}}
+							isLoading={true}
+							loadingText="Fetching battery info..."
+							showCloseButton={false}
+						/>
+					</>
+				)}
+			</div>
+		</>
 	);
 }
 
