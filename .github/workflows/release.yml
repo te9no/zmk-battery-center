@@ -35,7 +35,7 @@ jobs:
   test-tauri:
     needs: release
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         include:
           - platform: "macos-latest" # for Arm based macs (M1 and above).
@@ -93,7 +93,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: app-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version.
+          tagName: v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version.
           releaseName: 'v__VERSION__'
           releaseBody: ${{ needs.release.outputs.release_body }}
           releaseDraft: true
