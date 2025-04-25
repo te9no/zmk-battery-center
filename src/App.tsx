@@ -250,7 +250,7 @@ function App() {
 							<div className="flex flex-row ml-auto justify-end">
 								{/* 右上+ボタン */}
 								<Button
-									className="w-10 h-10 rounded-lg bg-transparent flex items-center justify-center text-2xl !p-0 !px-0 !py-0 hover:bg-muted"
+									className="w-10 h-10 rounded-lg bg-transparent flex items-center justify-center text-2xl !p-0 !px-0 !py-0 hover:bg-secondary"
 									onClick={handleOpenModal}
 									aria-label="Add Device"
 								>
@@ -259,7 +259,7 @@ function App() {
 
 								{/* リロードボタン */}
 								<Button
-									className={`w-10 h-10 rounded-lg bg-transparent flex items-center justify-center text-2xl !p-0 ${state === State.fetchingBatteryInfo || registeredDevices.length === 0 ? '!text-muted-foreground hover:bg-transparent' : '!text-foreground hover:bg-muted'}`}
+									className={`w-10 h-10 rounded-lg bg-transparent flex items-center justify-center text-2xl !p-0 ${state === State.fetchingBatteryInfo || state === State.welcome ? '!text-muted-foreground hover:bg-transparent' : '!text-foreground hover:bg-secondary'}`}
 									onClick={handleReload}
 									aria-label="Reload"
 									disabled={state === State.fetchingBatteryInfo || registeredDevices.length === 0}
@@ -269,7 +269,7 @@ function App() {
 
 								{/* 設定ボタン */}
 								<Button
-									className="w-10 h-10 rounded-lg bg-transparent hover:bg-muted flex items-center justify-center text-2xl !text-foreground !p-0"
+									className="w-10 h-10 rounded-lg bg-transparent hover:bg-secondary flex items-center justify-center text-2xl !text-foreground !p-0"
 									onClick={() => setState(State.settings)}
 									aria-label="Settings"
 								>
