@@ -4,8 +4,8 @@ use tauri::{
     tray::{MouseButton, MouseButtonState, TrayIconEvent},
     Manager,
 };
-use tauri_plugin_positioner::{Position, WindowExt};
 use tauri_plugin_autostart::MacosLauncher;
+use tauri_plugin_positioner::{Position, WindowExt};
 
 // モジュール宣言を追加
 mod ble;
@@ -14,7 +14,11 @@ mod common;
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
-        .plugin(tauri_plugin_autostart::init(MacosLauncher::LaunchAgent, Some(vec![])))
+        .plugin(tauri_plugin_notification::init())
+        .plugin(tauri_plugin_autostart::init(
+            MacosLauncher::LaunchAgent,
+            Some(vec![]),
+        ))
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_single_instance::init(|_, _, _| {}))
         .plugin(tauri_plugin_opener::init())

@@ -12,6 +12,8 @@ import Modal from "./components/Modal";
 import { useConfigContext } from "@/context/ConfigContext";
 import { load } from '@tauri-apps/plugin-store';
 import SettingsScreen from "@/components/SettingsScreen";
+import { sendNotification } from "./utils/notificaion";
+import { NotificationType } from "./utils/config";
 
 export type RegisteredDevice = {
 	id: string;
@@ -140,21 +142,46 @@ function App() {
 
 	// バッテリー情報を更新する関数
 	const updateBatteryInfo = async (device: RegisteredDevice) => {
+		const isDisconnectedPrev = device.isDisconnected;
+		const isLowBatteryPrev = device.batteryInfos.map(info => info.battery_level !== null ? info.battery_level <= 48 : false); // Regard as not low battery if battery_level is null
+
 		let attempts = 0;
-		const maxAttempts = device.isDisconnected ? 1 : 3;
+		const maxAttempts = isDisconnectedPrev ? 1 : 3;
+
 		while (attempts < maxAttempts) {
 			printRust(`Updating battery info for: ${device.id} (attempt ${attempts + 1} of ${maxAttempts})`);
 			try {
 				const info = await getBatteryInfo(device.id);
 				setRegisteredDevices(prev => prev.map(d => d.id === device.id ? { ...d, batteryInfos: Array.isArray(info) ? info : [info], isDisconnected: false } : d));
+
+				if(isDisconnectedPrev && config.pushNotification && config.pushNotificationWhen[NotificationType.Connected]){
+					sendNotification(`${device.name} has been connected.`);
+				}
 				return;
 			} catch {
 				attempts++;
 				if (attempts >= maxAttempts) {
 					setRegisteredDevices(prev => prev.map(d => d.id === device.id ? { ...d, isDisconnected: true } : d));
+
+					if(!isDisconnectedPrev && config.pushNotification && config.pushNotificationWhen[NotificationType.Disconnected]){
+						sendNotification(`${device.name} has been disconnected.`);
+					}
 				}
 			}
 			await sleep(1000);
+		}
+
+		if(config.pushNotification && config.pushNotificationWhen[NotificationType.LowBattery]){
+			const isLowBattery = device.batteryInfos.map(info => info.battery_level !== null ? info.battery_level <= 480 : false);
+			for(let i = 0; i < device.batteryInfos.length; i++){
+				if(!isLowBatteryPrev[i] && isLowBattery[i]){
+					sendNotification(`${device.name}${
+						device.batteryInfos.length >= 2 ?
+							' ' + (device.batteryInfos[i].user_descriptor ?? 'Central') + ' '
+							: ''
+					}has low battery.`);
+				}
+			}
 		}
 	};
 
