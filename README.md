@@ -2,6 +2,8 @@
 
 A system tray app to monitor the battery level of ZMK-based keyboards, built with [Tauri v2](https://v2.tauri.app/).
 
+![image](https://github.com/user-attachments/assets/1fe0b6de-c8cd-428b-975f-8c5d89850aba)
+
 ## ✨ Features
 - Display battery level for:
   - Both central and peripheral sides of split keyboards
