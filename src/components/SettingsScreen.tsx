@@ -119,7 +119,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({
 
 				{/* 自動起動設定 */}
 				<div className="flex justify-between">
-					<span>Auto start</span>
+					<span>Auto start at login</span>
 					<Switch
 						checked={config.autoStart}
 						onCheckedChange={checked => setConfig(c => ({ ...c, autoStart: checked }))}
