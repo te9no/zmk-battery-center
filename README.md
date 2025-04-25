@@ -9,14 +9,16 @@ A system tray app to monitor the battery level of ZMK-based keyboards, built wit
   - Both central and peripheral sides of split keyboards
   - Multiple keyboards simultaneously
 - Supports macOS and Windows
+- Options to
+  - Push notifications when
+    - Keyboard battery is low
+    - Keyboard is connected/disconnected
+  - Auto start at login
+  - Switch between light and dark themes
 
-## Usage
+## Download
 
-1. Download the latest release from the [Releases](https://github.com/kot149/zmk-battery-center/releases) page.
-2. Install or run the app on your system.
-3. Click the icon in your system tray to open the app menu.
-4. Click the `Add Device` button and select your keyboard from the list.
-   - On macOS, grant Bluetooth permissions if prompted.
+Download from [Releases](https://github.com/kot149/zmk-battery-center/releases).
 
 ## Troubleshooting
 
