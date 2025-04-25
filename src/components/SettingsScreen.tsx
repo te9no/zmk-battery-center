@@ -1,7 +1,7 @@
 import React from "react";
 import Button from "./Button";
 import { NotificationType } from "../utils/config";
-import { useTheme, type Theme } from "@/components/theme-provider";
+import { useTheme, type Theme } from "@/context/theme-provider";
 import { Moon, Sun } from "lucide-react";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch"

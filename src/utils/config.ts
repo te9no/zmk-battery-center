@@ -1,6 +1,6 @@
 import { load, type Store } from '@tauri-apps/plugin-store';
 import { printRust } from './common';
-import { Theme } from '@/components/theme-provider';
+import { Theme } from '@/context/theme-provider';
 
 export enum NotificationType {
 	LowBattery = 'low_battery',
