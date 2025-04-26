@@ -22,6 +22,10 @@ Download from [Releases](https://github.com/kot149/zmk-battery-center/releases).
 
 ## Troubleshooting
 
+### Cannot open the app on macOS
+
+- Remove the app from quarantine by running `sudo xattr -d com.apple.quarantine /path/to/zmk-battery-center.app` in the terminal and try again.
+
 ### My keyboard does not show up
 
 - Ensure your keyboard is connected to your computer via Bluetooth.
