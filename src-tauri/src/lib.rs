@@ -6,6 +6,7 @@ use tauri::{
 };
 use tauri_plugin_autostart::MacosLauncher;
 use tauri_plugin_positioner::{Position, WindowExt};
+use tauri_plugin_opener::OpenerExt;
 
 // モジュール宣言を追加
 mod ble;
@@ -44,10 +45,15 @@ pub fn run() {
                 // メニューアイテムを作成
                 let show_item = MenuItemBuilder::with_id("show", "Show").build(app)?;
                 let quit_item = MenuItemBuilder::with_id("quit", "Quit").build(app)?;
+                let view_on_github = MenuItemBuilder::with_id("view_on_github", "View on GitHub").build(app)?;
 
                 // メニューを構築
                 let menu = MenuBuilder::new(app)
-                    .items(&[&show_item, &quit_item])
+                    .items(&[
+                        &show_item,
+                        &quit_item,
+                        &view_on_github,
+                    ])
                     .build()?;
 
                 let tray = app.tray_by_id("tray_icon").unwrap();
@@ -106,6 +112,10 @@ pub fn run() {
             "quit" => {
                 println!("quit menu item was clicked");
                 app.exit(0);
+            }
+            "view_on_github" => {
+                println!("visit github menu item was clicked");
+                app.opener().open_path("https://github.com/kot149/zmk-battery-center", None::<&str>).unwrap();
             }
             _ => {
                 println!("menu item {:?} not handled", event.id);
