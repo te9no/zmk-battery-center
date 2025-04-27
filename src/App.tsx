@@ -282,10 +282,10 @@ function App() {
 
 							{/* リロードボタン */}
 							<Button
-								className={`w-10 h-10 rounded-lg bg-transparent flex items-center justify-center text-2xl !p-0 ${state === State.fetchingBatteryInfo || state === State.welcome ? '!text-muted-foreground hover:bg-transparent' : '!text-foreground hover:bg-secondary'}`}
+								className="w-10 h-10 rounded-lg bg-transparent flex items-center justify-center text-2xl !p-0 text-foreground hover:bg-secondary disabled:!text-muted-foreground disabled:hover:bg-transparent"
 								onClick={handleReload}
 								aria-label="Reload"
-								disabled={state === State.welcome || state === State.fetchingBatteryInfo}
+								disabled={state === State.welcome || state === State.fetchingBatteryInfo || registeredDevices.length === 0}
 							>
 								<ArrowPathIcon className="size-5" />
 							</Button>
