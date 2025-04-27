@@ -23,7 +23,6 @@ export type RegisteredDevice = {
 }
 
 enum State {
-	welcome = 'welcome',
 	main = 'main',
 	addDeviceModal = 'addDeviceModal',
 	settings = 'settings',
@@ -63,7 +62,7 @@ function App() {
 	const { config } = useConfigContext();
 
 	// 画面表示状態
-	const [state, setState] = useState<State>(State.welcome);
+	const [state, setState] = useState<State>(State.main);
 
 	// 保存された値を取得
 	useEffect(() => {
@@ -186,11 +185,7 @@ function App() {
 	};
 
 	const handleCloseModal = () => {
-		if (registeredDevices.length === 0) {
-			setState(State.welcome);
-		} else {
-			setState(State.main);
-		}
+		setState(State.main);
 		setError("");
 	};
 
@@ -223,13 +218,6 @@ function App() {
 			saveRegisteredDevices();
 		}
 
-		// Welcome画面の表示
-		if (registeredDevices.length === 0) {
-			setState(State.welcome);
-		} else if (state === State.welcome) {
-			setState(State.main);
-		}
-
 		// 一定時間ごとにバッテリー情報を更新
 		let isUnmounted = false;
 
@@ -247,9 +235,7 @@ function App() {
 	// UI
 	return (
 		<div id="app" className={`relative w-[300px] flex flex-col bg-background text-foreground rounded-[10px] p-2 ${
-			state === State.welcome || registeredDevices.length === 0 ? 'h-[300px]' :
-			state === State.main ? '' :
-			'min-h-[300px]'
+			state === State.main && registeredDevices.length > 0 || state === State.fetchingBatteryInfo ? '' : 'min-h-[300px]'
 		}`}>
 			{state === State.settings ? (
 				<SettingsScreen
@@ -285,7 +271,7 @@ function App() {
 								className="w-10 h-10 rounded-lg bg-transparent flex items-center justify-center text-2xl !p-0 text-foreground hover:bg-secondary disabled:!text-muted-foreground disabled:hover:bg-transparent"
 								onClick={handleReload}
 								aria-label="Reload"
-								disabled={state === State.welcome || state === State.fetchingBatteryInfo || registeredDevices.length === 0}
+								disabled={registeredDevices.length === 0 || state === State.fetchingBatteryInfo}
 							>
 								<ArrowPathIcon className="size-5" />
 							</Button>
