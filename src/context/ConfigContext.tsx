@@ -1,5 +1,7 @@
 import { createContext, useContext, Dispatch, SetStateAction, ReactNode, useState, useEffect } from 'react';
 import { defaultConfig, getConfig, setConfig as storeSetConfig, type Config } from '../utils/config';
+import { useTheme, type Theme } from '@/context/theme-provider';
+import { printRust } from '@/utils/common';
 
 // Configとsetterをまとめて提供するContextの型定義
 type ConfigContextType = {
@@ -14,6 +16,7 @@ const ConfigContext = createContext<ConfigContextType | undefined>(undefined);
 export const ConfigProvider = ({ children }: { children: ReactNode }) => {
 	const [config, setConfig] = useState<Config>(defaultConfig);
 	const [isLoaded, setIsLoaded] = useState(false);
+	const { setTheme } = useTheme();
 
 	// 初期設定をロード
 	useEffect(() => {
@@ -23,6 +26,9 @@ export const ConfigProvider = ({ children }: { children: ReactNode }) => {
 			if (isMounted) {
 				setConfig(loaded);
 				setIsLoaded(true);
+				setTheme(loaded.theme as Theme);
+				printRust(`Loaded config: ${JSON.stringify(loaded, null, 4)}`);
+				printRust(`Theme set to: ${loaded.theme}`);
 			}
 		})();
 		return () => { isMounted = false; };

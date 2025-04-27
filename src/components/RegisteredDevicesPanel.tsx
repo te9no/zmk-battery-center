@@ -83,7 +83,7 @@ const RegisteredDevicesPanel: React.FC<DeviceListProps> = ({
 							)}
 
 							{/* デバイス名＋disconnected? */}
-							<div className="flex items-center gap-2 mb-2">
+							<div className="flex items-baseline gap-2 mb-2">
 								<span className={`text-lg font-semibold truncate ${device.isDisconnected ? 'max-w-[150px]' : 'max-w-[200px]'}`}>{device.name}</span>
 								{device.isDisconnected && (
 									<span className="text-xs text-destructive">disconnected</span>
