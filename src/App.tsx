@@ -247,7 +247,7 @@ function App() {
 	// UI
 	return (
 		<div id="app" className={`relative w-[300px] flex flex-col bg-background text-foreground rounded-[10px] p-2 ${
-			state === State.welcome ? 'h-[300px]' :
+			state === State.welcome || registeredDevices.length === 0 ? 'h-[300px]' :
 			state === State.main ? '' :
 			'min-h-[300px]'
 		}`}>
