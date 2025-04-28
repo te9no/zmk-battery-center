@@ -24,9 +24,9 @@ export const defaultConfig: Config = {
 	autoStart: false,
 	pushNotification: false,
 	pushNotificationWhen: {
-		[NotificationType.LowBattery]: false,
-		[NotificationType.Connected]: false,
-		[NotificationType.Disconnected]: false,
+		[NotificationType.LowBattery]: true,
+		[NotificationType.Connected]: true,
+		[NotificationType.Disconnected]: true,
 	},
 };
 
