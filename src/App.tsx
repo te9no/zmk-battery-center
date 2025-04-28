@@ -121,6 +121,10 @@ function App() {
 		}
 	}
 
+	const mapIsLowBattery = (batteryInfos: BatteryInfo[]) => {
+		return batteryInfos.map(info => info.battery_level !== null ? info.battery_level <= 20 : false);
+	}
+
 	// デバイス追加
 	const handleAddDevice = async (id: string) => {
 		if (!registeredDevices.some(d => d.id === id)) {
@@ -142,7 +146,7 @@ function App() {
 	// バッテリー情報を更新する関数
 	const updateBatteryInfo = async (device: RegisteredDevice) => {
 		const isDisconnectedPrev = device.isDisconnected;
-		const isLowBatteryPrev = device.batteryInfos.map(info => info.battery_level !== null ? info.battery_level <= 20 : false); // Regard as not low battery if battery_level is null
+		const isLowBatteryPrev = mapIsLowBattery(device.batteryInfos);
 
 		let attempts = 0;
 		const maxAttempts = isDisconnectedPrev ? 1 : 3;
@@ -151,11 +155,27 @@ function App() {
 			printRust(`Updating battery info for: ${device.id} (attempt ${attempts + 1} of ${maxAttempts})`);
 			try {
 				const info = await getBatteryInfo(device.id);
-				setRegisteredDevices(prev => prev.map(d => d.id === device.id ? { ...d, batteryInfos: Array.isArray(info) ? info : [info], isDisconnected: false } : d));
+				const infoArray = Array.isArray(info) ? info : [info];
+				setRegisteredDevices(prev => prev.map(d => d.id === device.id ? { ...d, batteryInfos: infoArray, isDisconnected: false } : d));
 
 				if(isDisconnectedPrev && config.pushNotification && config.pushNotificationWhen[NotificationType.Connected]){
 					await sendNotification(`${device.name} has been connected.`);
 				}
+
+				if(config.pushNotification && config.pushNotificationWhen[NotificationType.LowBattery]){
+					const isLowBattery = mapIsLowBattery(infoArray);
+					for(let i = 0; i < isLowBattery.length && i < isLowBatteryPrev.length; i++){
+						if(!isLowBatteryPrev[i] && isLowBattery[i]){
+							sendNotification(`${device.name}${
+								infoArray.length >= 2 ?
+									' ' + (infoArray[i].user_descriptor ?? 'Central') + ' '
+									: ''
+							}has low battery.`);
+							printRust(`${device.name} has low battery.`);
+						}
+					}
+				}
+
 				return;
 			} catch {
 				attempts++;
@@ -164,23 +184,11 @@ function App() {
 
 					if(!isDisconnectedPrev && config.pushNotification && config.pushNotificationWhen[NotificationType.Disconnected]){
 						await sendNotification(`${device.name} has been disconnected.`);
+						return;
 					}
 				}
 			}
 			await sleep(500);
-		}
-
-		if(config.pushNotification && config.pushNotificationWhen[NotificationType.LowBattery]){
-			const isLowBattery = device.batteryInfos.map(info => info.battery_level !== null ? info.battery_level <= 20 : false);
-			for(let i = 0; i < device.batteryInfos.length; i++){
-				if(!isLowBatteryPrev[i] && isLowBattery[i]){
-					sendNotification(`${device.name}${
-						device.batteryInfos.length >= 2 ?
-							' ' + (device.batteryInfos[i].user_descriptor ?? 'Central') + ' '
-							: ''
-					}has low battery.`);
-				}
-			}
 		}
 	};
 
@@ -230,7 +238,7 @@ function App() {
 			isUnmounted = true;
 			clearInterval(interval);
 		};
-	}, [registeredDevices]);
+	}, [registeredDevices, config.fetchInterval]);
 
 	// UI
 	return (
