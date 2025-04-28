@@ -51,8 +51,8 @@ pub fn run() {
                 let menu = MenuBuilder::new(app)
                     .items(&[
                         &show_item,
-                        &quit_item,
                         &view_on_github,
+                        &quit_item,
                     ])
                     .build()?;
 
