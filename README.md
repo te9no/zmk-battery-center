@@ -31,17 +31,18 @@ Download from [Releases](https://github.com/kot149/zmk-battery-center/releases).
   sudo xattr -d com.apple.quarantine /Applications/zmk-battery-center.app
   ```
 
-### My keyboard does not show up
+### My keyboard does not show up / battery level is not displayed for peripheral side
 
 - Ensure your keyboard is connected to your computer via Bluetooth.
 - Confirm your keyboard firmware includes the following ZMK configuration options:
   ```kconfig
+  CONFIG_BT_BAS=y
   CONFIG_ZMK_BATTERY_REPORTING=y
   # For split keyboards:
   CONFIG_ZMK_SPLIT_BLE_CENTRAL_BATTERY_LEVEL_FETCHING=y
   CONFIG_ZMK_SPLIT_BLE_CENTRAL_BATTERY_LEVEL_PROXY=y
   ```
-  See the [ZMK Battery Documentation](https://zmk.dev/docs/config/battery) for more details.
+  See the ZMK Documentation [about Bluetooth](https://zmk.dev/docs/config/system#bluetooth) and [about battery](https://zmk.dev/docs/config/battery) for more details.
 - On macOS, make sure Bluetooth permission is granted to the app.
 
 ## Contributing
