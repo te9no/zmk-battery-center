@@ -40,7 +40,37 @@ Download from [Releases](https://github.com/kot149/zmk-battery-center/releases).
   CONFIG_ZMK_SPLIT_BLE_CENTRAL_BATTERY_LEVEL_PROXY=y
   ```
   See the [ZMK Battery Documentation](https://zmk.dev/docs/config/battery) for more details.
-- On macOS, make sure Bluetooth permissions are granted to the app.
+- On macOS, make sure Bluetooth permission is granted to the app.
+
+## Contributing
+Issues and PRs are appreciated.
+
+Also, if you like this software, please support the ZMK developer!
+https://opencollective.com/zmkfirmware
+
+## Development
+1. Install [Bun](https://bun.sh)
+1. Install [Rust](https://www.rust-lang.org/ja/tools/install)
+1. Install frontend dependencies
+     ```sh
+     bun install
+     ```
+2. Run in development mode
+     ```sh
+     bun tauri dev
+     ```
+3. Build for production
+     ```sh
+     bun tauri build
+     ```
+   - If build fails, try cleaning the build cache
+     ```sh
+     cd src-tauri
+     cargo clean
+     cd ..
+     ```
+
+You can also build using [GitHub Actions](.github/workflows).
 
 ## References
 - ZMK PR [#1243](https://github.com/zmkfirmware/zmk/pull/1243), [#2045](https://github.com/zmkfirmware/zmk/pull/2045) — Implementation and discussion for split battery reporting over BLE GATT
