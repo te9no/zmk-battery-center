@@ -60,14 +60,14 @@ const Modal: React.FC<ModalProps> = ({
 					</Button>
 				)}
 				{title && <h2 className="text-foreground text-lg mb-4">{title}</h2>}
-				{error && <div className="mb-4 bg-destructive text-destructive-foreground px-4 py-2 rounded shadow-lg">{error}</div>}
+				{error && <div className="w-65 bg-destructive/40 text-destructive-foreground px-4 py-2 rounded-lg shadow-lg">{error}</div>}
 				{isLoading ? (
 					<div className="flex justify-center items-center py-8">
 						<div className="loader border-4 border-primary border-t-transparent rounded-full w-10 h-10 animate-spin"></div>
 						<span className="ml-4 text-foreground">{loadingText}</span>
 					</div>
 				) : (
-					children
+					!error && children
 				)}
 			</div>
 		</div>
