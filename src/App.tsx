@@ -242,10 +242,10 @@ function App() {
 
 	// UI
 	return (
-		<div id="app" className={`relative w-[300px] flex flex-col bg-background text-foreground rounded-[10px] p-2 ${
+		<div id="app" className={`relative w-90 flex flex-col bg-background text-foreground rounded-9 p-2 ${
 			state === State.main && registeredDevices.length > 0 ? '' :
-			state === State.fetchingBatteryInfo ? 'min-h-[175px]' :
-			'min-h-[300px]'
+			state === State.fetchingBatteryInfo ? 'min-h-58' :
+			'min-h-90'
 		}`}>
 			{state === State.settings ? (
 				<SettingsScreen

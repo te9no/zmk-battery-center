@@ -84,7 +84,7 @@ const RegisteredDevicesPanel: React.FC<DeviceListProps> = ({
 
 							{/* デバイス名＋disconnected? */}
 							<div className="flex items-baseline gap-2 mb-2">
-								<span className={`text-lg font-semibold truncate ${device.isDisconnected ? 'max-w-[150px]' : 'max-w-[200px]'}`}>{device.name}</span>
+								<span className={`text-lg font-semibold truncate ${device.isDisconnected ? 'max-w-45' : 'max-w-60'}`}>{device.name}</span>
 								{device.isDisconnected && (
 									<span className="text-xs text-destructive">disconnected</span>
 								)}
@@ -97,9 +97,9 @@ const RegisteredDevicesPanel: React.FC<DeviceListProps> = ({
 								<div className="space-y-1 ml-7">
 									{device.batteryInfos.map((b, propIdx) => (
 										<div key={propIdx} className="flex items-center gap-4">
-											<span className="min-w-[90px] text-card-foreground/80">{b.user_descriptor ?? "Central"}</span>
+											<span className="min-w-27 text-card-foreground/80">{b.user_descriptor ?? "Central"}</span>
 											<BatteryIcon percentage={b.battery_level ?? 0} />
-											<span className="w-[35px] min-w-[35px] text-card-foreground/90 text-right text-sm">{b.battery_level !== null ? `${b.battery_level}%` : "N/A"}</span>
+											<span className="w-10 min-w-10 text-card-foreground/90 text-right text-sm">{b.battery_level !== null ? `${b.battery_level}%` : "N/A"}</span>
 										</div>
 									))}
 								</div>
