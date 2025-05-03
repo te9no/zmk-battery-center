@@ -11,7 +11,7 @@ A system tray app to monitor the battery level of ZMK-based keyboards, built wit
 - Supports macOS and Windows
 - (Options)
   - Push notifications when
-    - Keyboard battery is low
+    - Keyboard battery level is low
     - Keyboard is connected/disconnected
   - Auto start at login
   - Switch between light and dark themes
@@ -56,6 +56,11 @@ https://opencollective.com/zmkfirmware
 ## Development
 1. Install [Bun](https://bun.sh)
 1. Install [Rust](https://www.rust-lang.org/ja/tools/install)
+2. Clone this repo
+   ```sh
+   git clone https://github.com/kot149/zmk-battery-center.git
+   cd zmk-battery-center
+   ```
 1. Install frontend dependencies
      ```sh
      bun install
