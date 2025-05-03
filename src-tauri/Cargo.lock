@@ -5884,6 +5884,7 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "uuid",
+ "windows 0.61.1",
 ]
 
 [[package]]

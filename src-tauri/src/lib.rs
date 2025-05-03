@@ -11,6 +11,7 @@ use tauri_plugin_opener::OpenerExt;
 // モジュール宣言を追加
 mod ble;
 mod common;
+mod window;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -27,7 +28,8 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             common::print_rust,
             ble::list_battery_devices,
-            ble::get_battery_info
+            ble::get_battery_info,
+            window::get_windows_text_scale_factor,
         ])
         .setup(|app| {
             #[cfg(desktop)]
