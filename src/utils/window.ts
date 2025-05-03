@@ -3,12 +3,18 @@ import { Position, moveWindow } from '@tauri-apps/plugin-positioner';
 import { printRust } from './common';
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { isTrayPositionSet } from './tray';
+import { invoke } from '@tauri-apps/api/core';
 
 export async function resizeWindow(x: number, y: number) {
-	printRust(`resizeWindow: ${x} ${y}`);
+	printRust(`resizeWindow: ${x}x${y}`);
+    const scaleFactor = await invoke<number>('get_windows_text_scale_factor');
+    const width = x * scaleFactor;
+    const height = y * scaleFactor;
+    printRust(`scaled size: ${width}x${height}`);
+
 	const window = getCurrentWebviewWindow();
 	if (window) {
-		await window.setSize(new LogicalSize(x, y));
+		await window.setSize(new LogicalSize(width, height));
 	}
     moveWindowToTrayCenter();
 }
