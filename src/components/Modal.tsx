@@ -43,11 +43,11 @@ const Modal: React.FC<ModalProps> = ({
 	if (!show) return null;
 	return (
 		<div
-			className={`fixed inset-0 z-50 flex items-center justify-center bg-background/80 rounded-[10px] transition-opacity duration-200 ${animate ? 'opacity-100' : 'opacity-0'}`}
+			className={`fixed inset-0 z-50 flex items-center justify-center bg-background/80 rounded-9 transition-opacity duration-200 ${animate ? 'opacity-100' : 'opacity-0'}`}
 			onClick={onClose}
 		>
 			<div
-				className={`bg-card rounded-lg shadow-lg p-6 min-w-[200px] relative transform transition-all duration-200 ${animate ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
+				className={`bg-card rounded-lg shadow-lg p-6 min-w-60 relative transform transition-all duration-200 ${animate ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
 				onClick={e => e.stopPropagation()}
 			>
 				{showCloseButton && (

@@ -57,8 +57,8 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({
 							{ key: "system", icon: (
 								<div className="flex flex-col items-center justify-center">
 									<span className="relative w-6 h-6 flex items-center justify-center">
-										<Sun className="absolute w-4 h-4 left-[-2px] top-[-2px]" />
-										<Moon className="absolute w-4 h-4 right-[-2px] bottom-[-2px]" />
+										<Sun className="absolute w-4 h-4 left-[-7%] top-[-7%]" />
+										<Moon className="absolute w-4 h-4 right-[-7%] bottom-[-7%]" />
 										<svg className="absolute left-0 top-0 w-6 h-6 pointer-events-none" width="24" height="24">
 											<line x1="0" y1="20" x2="20" y2="0" stroke="currentColor" strokeWidth="0.5" strokeLinecap="round" />
 										</svg>

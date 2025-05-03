@@ -14,7 +14,7 @@ export async function resizeWindow(x: number, y: number) {
 }
 
 export async function resizeWindowToContent() {
-    const width = document.getElementById('app')?.scrollWidth ?? 0;
+    const width = document.getElementById('app')?.clientWidth ?? 0;
     const height = document.getElementById('app')?.scrollHeight ?? 0;
     resizeWindow(width, height);
 }
