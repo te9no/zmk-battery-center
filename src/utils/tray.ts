@@ -29,9 +29,10 @@ const menu = await Menu.new({
 		},
 		{
 			id: 'refresh',
-			text: 'Refresh Window',
+			text: 'Refresh window',
 			action: () => {
 				location.reload();
+				showWindow();
 			},
 		},
 		{
