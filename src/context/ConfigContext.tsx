@@ -2,6 +2,7 @@ import { createContext, useContext, Dispatch, SetStateAction, ReactNode, useStat
 import { defaultConfig, getConfig, setConfig as storeSetConfig, type Config } from '../utils/config';
 import { useTheme, type Theme } from '@/context/theme-provider';
 import { printRust } from '@/utils/common';
+import { listen, emit } from '@tauri-apps/api/event';
 
 // Configとsetterをまとめて提供するContextの型定義
 type ConfigContextType = {
@@ -32,16 +33,35 @@ export const ConfigProvider = ({ children }: { children: ReactNode }) => {
 			}
 		})();
 		return () => { isMounted = false; };
-	}, []);
+	}, [setTheme]);
 
-	// 設定を永続化
+	// 設定を永続化し、変更を通知
 	useEffect(() => {
 		if (isLoaded) {
 			(async () => {
 				await storeSetConfig(config);
+				// Emit event for tray to listen
+				await emit('config-changed', config);
+				printRust(`Emitted config-changed: ${JSON.stringify(config, null, 2)}`);
 			})();
 		}
 	}, [config, isLoaded]);
+
+	// Listen for config updates from tray
+	useEffect(() => {
+		const unlistenPromise = listen<Partial<Config>>('update-config', (event) => {
+			const updates = event.payload;
+			printRust(`Received update-config event: ${JSON.stringify(updates)}`);
+			setConfig(prevConfig => ({
+				...prevConfig,
+				...updates,
+			}));
+		});
+
+		return () => {
+			unlistenPromise.then(unlisten => unlisten());
+		};
+	}, []);
 
 	return (
 		<ConfigContext.Provider value={{ config, setConfig }}>

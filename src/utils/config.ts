@@ -16,6 +16,11 @@ export type Config = {
 	autoStart: boolean;
 	pushNotification: boolean;
 	pushNotificationWhen: Record<NotificationType, boolean>;
+	manualWindowPositioning: boolean;
+	windowPosition: {
+		x: number;
+		y: number;
+	};
 }
 
 export const defaultConfig: Config = {
@@ -27,6 +32,11 @@ export const defaultConfig: Config = {
 		[NotificationType.LowBattery]: true,
 		[NotificationType.Connected]: true,
 		[NotificationType.Disconnected]: true,
+	},
+	manualWindowPositioning: false,
+	windowPosition: {
+		x: 0,
+		y: 0,
 	},
 };
 
