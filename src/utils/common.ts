@@ -7,3 +7,7 @@ export async function printRust(str: string) {
 export async function sleep(ms: number) {
 	await new Promise(resolve => setTimeout(resolve, ms));
 }
+
+export async function exitApp() {
+	await invoke("exit_app");
+}
