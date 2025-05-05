@@ -1,7 +1,7 @@
 import { once } from '@tauri-apps/api/event';
 import { printRust } from './common';
 import { TrayIcon, TrayIconEvent } from '@tauri-apps/api/tray';
-import { Menu } from '@tauri-apps/api/menu';
+import { Menu, MenuItem, Submenu, CheckMenuItem } from '@tauri-apps/api/menu';
 import { showWindow } from './window';
 import { exitApp } from './common';
 import { openUrl } from '@tauri-apps/plugin-opener';
@@ -28,16 +28,33 @@ const menu = await Menu.new({
 			}
 		},
 		{
-			id: 'refresh',
-			text: 'Refresh window',
-			action: () => {
-				location.reload();
-				showWindow();
-			},
+			id: 'control',
+			text: 'Control',
+			items: [
+				{
+					id: 'refresh',
+					text: 'Refresh window',
+					action: () => {
+						location.reload();
+						showWindow();
+					},
+				},
+				{
+					id: 'manual_window_positioning',
+					text: 'Manual window positioning',
+					action: async (trayId: string) => {
+						const controlMenu = await menu?.get('control') as Submenu | null;
+						const thisMenu = await controlMenu?.get(trayId) as CheckMenuItem | null;
+						const isChecked = await thisMenu?.isChecked() || false;
+						printRust(isChecked.toString());
+					},
+					checked: false
+				},
+			]
 		},
 		{
-			id: 'view_on_github',
-			text: 'View on GitHub',
+			id: 'about',
+			text: 'About',
 			action: () => {
 				openUrl('https://github.com/kot149/zmk-battery-center');
 			}
