@@ -14,6 +14,18 @@ mod window;
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(
+            tauri_plugin_log::Builder::new()
+            .format(|out, message, record| {
+                out.finish(format_args!(
+                    "[{level}] [{target}]\n{message}",
+                    level = record.level(),
+                    target = record.target(),
+                    message = message
+                ))
+            })
+            .build()
+        )
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_autostart::init(
             MacosLauncher::LaunchAgent,
@@ -24,7 +36,6 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_positioner::init())
         .invoke_handler(tauri::generate_handler![
-            common::print_rust,
             common::exit_app,
             ble::list_battery_devices,
             ble::get_battery_info,

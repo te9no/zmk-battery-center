@@ -1,7 +1,7 @@
 import { createContext, useContext, Dispatch, SetStateAction, ReactNode, useState, useEffect } from 'react';
 import { defaultConfig, getConfig, setConfig as storeSetConfig, type Config } from '../utils/config';
 import { useTheme, type Theme } from '@/context/theme-provider';
-import { printRust } from '@/utils/common';
+import { logger } from '@/utils/log';
 
 // Configとsetterをまとめて提供するContextの型定義
 type ConfigContextType = {
@@ -27,8 +27,8 @@ export const ConfigProvider = ({ children }: { children: ReactNode }) => {
 				setConfig(loaded);
 				setIsLoaded(true);
 				setTheme(loaded.theme as Theme);
-				printRust(`Loaded config: ${JSON.stringify(loaded, null, 4)}`);
-				printRust(`Theme set to: ${loaded.theme}`);
+				logger.info(`Loaded config: ${JSON.stringify(loaded, null, 4)}`);
+				logger.info(`Theme set to: ${loaded.theme}`);
 			}
 		})();
 		return () => { isMounted = false; };
