@@ -5,6 +5,7 @@ use tauri::{
 };
 use tauri_plugin_autostart::MacosLauncher;
 use tauri_plugin_positioner::{Position, WindowExt};
+use ansi_term::{Color, Style};
 
 // モジュール宣言を追加
 mod ble;
@@ -17,10 +18,37 @@ pub fn run() {
         .plugin(
             tauri_plugin_log::Builder::new()
             .format(|out, message, record| {
+                let level = record.level();
+                let level_str = level.to_string();
+
+                let colored_level_style = match level {
+                    log::Level::Error => Color::Red.bold(),
+                    log::Level::Warn => Color::Yellow.normal(),
+                    log::Level::Info => Color::Green.normal(),
+                    log::Level::Debug => Color::Blue.normal(),
+                    log::Level::Trace => Color::Purple.normal(),
+                };
+
+                let colored_level = colored_level_style.paint(&level_str);
+                // スタイルから直接角括弧を生成できないため、一度文字列化してスライスする
+                let bracket_left = colored_level_style.paint("[").to_string();
+                let bracket_right = colored_level_style.paint("]").to_string();
+
+                let target_str = record.target();
+                let dimmed_target_style = Style::new().fg(Color::Fixed(242)); // 薄いグレー
+                let colored_target = dimmed_target_style.paint(target_str);
+                let dimmed_bracket_left = dimmed_target_style.paint("[").to_string();
+                let dimmed_bracket_right = dimmed_target_style.paint("]").to_string();
+
                 out.finish(format_args!(
-                    "[{level}] [{target}]\n{message}",
-                    level = record.level(),
-                    target = record.target(),
+                    "{left_bracket}{level}{right_bracket} {left_dimmed_bracket}{target}{right_dimmed_bracket}
+{message}",
+                    left_bracket = bracket_left,
+                    level = colored_level,
+                    right_bracket = bracket_right,
+                    left_dimmed_bracket = dimmed_bracket_left,
+                    target = colored_target,
+                    right_dimmed_bracket = dimmed_bracket_right,
                     message = message
                 ))
             })
