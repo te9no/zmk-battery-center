@@ -5,6 +5,7 @@ use tauri::{
 };
 use tauri_plugin_autostart::MacosLauncher;
 use tauri_plugin_positioner::{Position, WindowExt};
+use ansi_term::Color;
 
 // モジュール宣言を追加
 mod ble;
@@ -14,6 +15,34 @@ mod window;
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(
+            tauri_plugin_log::Builder::new()
+            .format(|out, message, record| {
+                let level = record.level();
+                let level_str = level.to_string();
+
+                let colored_level_style = match level {
+                    log::Level::Error => Color::Red.bold(),
+                    log::Level::Warn => Color::Yellow.normal(),
+                    log::Level::Info => Color::Green.normal(),
+                    log::Level::Debug => Color::Blue.normal(),
+                    log::Level::Trace => Color::Purple.normal(),
+                };
+
+                let colored_level = colored_level_style.paint(&level_str);
+                let bracket_left = colored_level_style.paint("[").to_string();
+                let bracket_right = colored_level_style.paint("]").to_string();
+
+                out.finish(format_args!(
+                    "{left_bracket}{level}{right_bracket} {message}",
+                    left_bracket = bracket_left,
+                    level = colored_level,
+                    right_bracket = bracket_right,
+                    message = message
+                ))
+            })
+            .build()
+        )
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_autostart::init(
             MacosLauncher::LaunchAgent,
@@ -24,7 +53,6 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_positioner::init())
         .invoke_handler(tauri::generate_handler![
-            common::print_rust,
             common::exit_app,
             ble::list_battery_devices,
             ble::get_battery_info,

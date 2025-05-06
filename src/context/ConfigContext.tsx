@@ -1,7 +1,7 @@
 import { createContext, useContext, Dispatch, SetStateAction, ReactNode, useState, useEffect } from 'react';
 import { defaultConfig, getConfig, setConfig as storeSetConfig, type Config } from '../utils/config';
 import { useTheme, type Theme } from '@/context/theme-provider';
-import { printRust } from '@/utils/common';
+import { logger } from '@/utils/log';
 import { listen, emit } from '@tauri-apps/api/event';
 
 // Configとsetterをまとめて提供するContextの型定義
@@ -28,8 +28,8 @@ export const ConfigProvider = ({ children }: { children: ReactNode }) => {
 				setConfig(loaded);
 				setIsLoaded(true);
 				setTheme(loaded.theme as Theme);
-				printRust(`Loaded config: ${JSON.stringify(loaded, null, 4)}`);
-				printRust(`Theme set to: ${loaded.theme}`);
+				logger.info(`Loaded config: ${JSON.stringify(loaded, null, 4)}`);
+				logger.info(`Theme set to: ${loaded.theme}`);
 			}
 		})();
 		return () => { isMounted = false; };
@@ -42,7 +42,7 @@ export const ConfigProvider = ({ children }: { children: ReactNode }) => {
 				await storeSetConfig(config);
 				// Emit event for tray to listen
 				await emit('config-changed', config);
-				printRust(`Emitted config-changed: ${JSON.stringify(config, null, 2)}`);
+				logger.info(`Emitted config-changed: ${JSON.stringify(config, null, 2)}`);
 			})();
 		}
 	}, [config, isLoaded]);
@@ -51,7 +51,7 @@ export const ConfigProvider = ({ children }: { children: ReactNode }) => {
 	useEffect(() => {
 		const unlistenPromise = listen<Partial<Config>>('update-config', (event) => {
 			const updates = event.payload;
-			printRust(`Received update-config event: ${JSON.stringify(updates)}`);
+			logger.info(`Received update-config event: ${JSON.stringify(updates)}`);
 			setConfig(prevConfig => ({
 				...prevConfig,
 				...updates,

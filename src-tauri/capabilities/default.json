@@ -12,6 +12,7 @@
     "core:window:allow-set-size",
     "positioner:default",
     "store:default",
-    "notification:default"
+    "notification:default",
+    "log:default"
   ]
 }

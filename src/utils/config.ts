@@ -1,8 +1,8 @@
 import { load, type Store } from '@tauri-apps/plugin-store';
-import { printRust } from './common';
 import { Theme } from '@/context/theme-provider';
 import { enable as enableAutostart, isEnabled as isAutostartEnabled, disable as disableAutostart } from '@tauri-apps/plugin-autostart';
 import { requestNotificationPermission } from './notificaion';
+import { logger } from './log';
 
 export enum NotificationType {
 	LowBattery = 'low_battery',
@@ -51,7 +51,7 @@ async function getConfigStore() {
 
 export async function getConfig(): Promise<Config> {
 	const config = await getConfigStore().then((store: Store) => store.get<Config>('config'));
-	printRust(`Loaded config: ${JSON.stringify(config, null, 4)}`);
+	logger.info(`Loaded config: ${JSON.stringify(config, null, 4)}`);
 	return {
 		...defaultConfig,
 		...config,
@@ -73,11 +73,11 @@ export async function setConfig(config: Config) {
 	if (config.pushNotification) {
 		const isGranted = await requestNotificationPermission();
 		if(isGranted){
-			printRust('Notification permission granted');
+			logger.info('Notification permission granted');
 		} else {
-			printRust('Notification permission not granted');
+			logger.warn('Notification permission not granted');
 		}
 	}
 
-	printRust(`Set config: ${JSON.stringify(config, null, 4)}`);
+	logger.info(`Set config: ${JSON.stringify(config, null, 4)}`);
 };

@@ -4,8 +4,7 @@ import { useState, useEffect } from "react";
 import { mockRegisteredDevices } from "./utils/mockData";
 import Button from "./components/Button";
 import RegisteredDevicesPanel from "./components/RegisteredDevicesPanel";
-// @ts-ignore 'printRust' is declared but its value is never read.
-import { printRust, sleep } from "./utils/common";
+import { logger } from "./utils/log";
 import { resizeWindowToContent } from "./utils/window";
 import { PlusIcon, ArrowPathIcon, Cog8ToothIcon } from "@heroicons/react/24/outline";
 import Modal from "./components/Modal";
@@ -14,6 +13,7 @@ import { load } from '@tauri-apps/plugin-store';
 import SettingsScreen from "@/components/SettingsScreen";
 import { sendNotification } from "./utils/notificaion";
 import { NotificationType } from "./utils/config";
+import { sleep } from "./utils/common";
 
 export type RegisteredDevice = {
 	id: string;
@@ -70,7 +70,7 @@ function App() {
 			const deviceStore = await load('devices.json', { autoSave: true });
 			const devices = await deviceStore.get<RegisteredDevice[]>("devices");
 			setRegisteredDevices(devices || []);
-			printRust(`Loaded saved registered devices: ${JSON.stringify(devices, null, 4)}`);
+			logger.info(`Loaded saved registered devices: ${JSON.stringify(devices, null, 4)}`);
 			setIsLoaded(true);
 		};
 		fetchRegisteredDevices();
@@ -152,7 +152,7 @@ function App() {
 		const maxAttempts = isDisconnectedPrev ? 1 : 3;
 
 		while (attempts < maxAttempts) {
-			printRust(`Updating battery info for: ${device.id} (attempt ${attempts + 1} of ${maxAttempts})`);
+			logger.info(`Updating battery info for: ${device.id} (attempt ${attempts + 1} of ${maxAttempts})`);
 			try {
 				const info = await getBatteryInfo(device.id);
 				const infoArray = Array.isArray(info) ? info : [info];
@@ -171,7 +171,7 @@ function App() {
 									' ' + (infoArray[i].user_descriptor ?? 'Central') + ' '
 									: ''
 							}has low battery.`);
-							printRust(`${device.name} has low battery.`);
+							logger.info(`${device.name} has low battery.`);
 						}
 					}
 				}
@@ -221,7 +221,7 @@ function App() {
 			const saveRegisteredDevices = async () => {
 				const deviceStore = await load('devices.json', { autoSave: true });
 				await deviceStore.set("devices", registeredDevices);
-				printRust('Saved registered devices');
+				logger.info('Saved registered devices');
 			};
 			saveRegisteredDevices();
 		}
