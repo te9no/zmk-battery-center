@@ -10,7 +10,7 @@ pub fn get_windows_text_scale_factor() -> f64 {
         match UISettings::new() {
             Ok(settings) => match settings.TextScaleFactor() {
                 Ok(factor) => {
-                    log::info!("Text scale factor: {}", factor);
+                    log::debug!("Text scale factor: {}", factor);
                     factor
                 }
                 Err(e) => {
