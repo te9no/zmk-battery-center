@@ -1,4 +1,4 @@
-import { once, emit, listen } from '@tauri-apps/api/event';
+import { once, emit } from '@tauri-apps/api/event';
 import { TrayIcon, TrayIconEvent } from '@tauri-apps/api/tray';
 import { Menu, Submenu, CheckMenuItem } from '@tauri-apps/api/menu';
 import { showWindow } from './window';
