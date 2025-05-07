@@ -17,10 +17,6 @@ export type Config = {
 	pushNotification: boolean;
 	pushNotificationWhen: Record<NotificationType, boolean>;
 	manualWindowPositioning: boolean;
-	windowPosition: {
-		x: number;
-		y: number;
-	};
 }
 
 export const defaultConfig: Config = {
@@ -34,10 +30,6 @@ export const defaultConfig: Config = {
 		[NotificationType.Disconnected]: true,
 	},
 	manualWindowPositioning: false,
-	windowPosition: {
-		x: 0,
-		y: 0,
-	},
 };
 
 let configStoreInstance: Store | null = null;

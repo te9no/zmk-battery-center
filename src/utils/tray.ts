@@ -7,6 +7,8 @@ import { openUrl } from '@tauri-apps/plugin-opener';
 import { logger } from './log';
 import { loadSavedConfig } from './config';
 import { hideWindow, moveWindowToTrayCenter, moveWindowToCenter, setWindowFocus } from './window';
+import { saveWindowState, StateFlags } from '@tauri-apps/plugin-window-state';
+
 /*
 	plugin-positionerが動作可能かを判断するためのフラグ。
 	一度ユーザーがトレイクリック/ホバーするまでplugin-positionerが動作しない。
@@ -30,7 +32,7 @@ async function setupTray(){
 		} else {
 			showWindow();
 			if(manualWindowPositioning){
-				moveWindowToCenter();
+				// moveWindowToCenter();
 			} else {
 				moveWindowToTrayCenter();
 			}

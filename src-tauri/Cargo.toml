@@ -38,6 +38,7 @@ ansi_term = "0.12.1"
 tauri-plugin-autostart = "2"
 tauri-plugin-positioner = "2"
 tauri-plugin-single-instance = "2"
+tauri-plugin-window-state = "2"
 
 [target.'cfg(windows)'.dependencies.windows]
 version = "0.61"

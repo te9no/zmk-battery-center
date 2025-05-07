@@ -5,6 +5,7 @@ import { isTrayPositionSet } from './tray';
 import { invoke } from '@tauri-apps/api/core';
 import { logger } from './log';
 import { emit } from '@tauri-apps/api/event';
+import { restoreStateCurrent, saveWindowState, StateFlags } from '@tauri-apps/plugin-window-state';
 
 export async function resizeWindow(x: number, y: number) {
 	logger.info(`resizeWindow: ${x}x${y}`);
@@ -67,6 +68,7 @@ let focusTimeout: NodeJS.Timeout | null = null;
 
 async function handleWindowEvent() {
     const window = getCurrentWebviewWindow();
+    restoreStateCurrent(StateFlags.POSITION);
 
     const unlistenOnMoved = window.onMoved(({ payload: position }) => {
         isWindowMoving = true;
@@ -79,7 +81,7 @@ async function handleWindowEvent() {
         moveTimeout = setTimeout(async () => {
             isWindowMoving = false;
             logger.info(`isWindowMoving: ${isWindowMoving}`);
-            await emit('update-config', { windowPosition: { x: position.x, y: position.y } });
+            await saveWindowState(StateFlags.POSITION);
         }, 200);
     });
 
