@@ -4,7 +4,6 @@ import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { isTrayPositionSet } from './tray';
 import { invoke } from '@tauri-apps/api/core';
 import { logger } from './log';
-import { emit } from '@tauri-apps/api/event';
 import { restoreStateCurrent, saveWindowState, StateFlags } from '@tauri-apps/plugin-window-state';
 
 export async function resizeWindow(x: number, y: number) {

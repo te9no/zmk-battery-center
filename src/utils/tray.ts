@@ -6,8 +6,7 @@ import { exitApp } from './common';
 import { openUrl } from '@tauri-apps/plugin-opener';
 import { logger } from './log';
 import { loadSavedConfig } from './config';
-import { hideWindow, moveWindowToTrayCenter, moveWindowToCenter, setWindowFocus } from './window';
-import { saveWindowState, StateFlags } from '@tauri-apps/plugin-window-state';
+import { hideWindow, moveWindowToTrayCenter, setWindowFocus } from './window';
 
 /*
 	plugin-positionerが動作可能かを判断するためのフラグ。
