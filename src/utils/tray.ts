@@ -5,7 +5,7 @@ import { isWindowVisible, showWindow } from './window';
 import { exitApp } from './common';
 import { openUrl } from '@tauri-apps/plugin-opener';
 import { logger } from './log';
-import { getConfig } from './config';
+import { loadSavedConfig } from './config';
 import { hideWindow, moveWindowToTrayCenter, moveWindowToCenter, setWindowFocus } from './window';
 /*
 	plugin-positionerが動作可能かを判断するためのフラグ。
@@ -39,7 +39,7 @@ async function setupTray(){
 	});
 
 	// Load the initial config to set the menu item's checked state
-	const initialConfig = await getConfig();
+	const initialConfig = await loadSavedConfig();
 	manualWindowPositioning = initialConfig.manualWindowPositioning;
 
 	const menu = await Menu.new({

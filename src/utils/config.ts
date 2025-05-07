@@ -49,7 +49,7 @@ async function getConfigStore() {
 	return configStoreInstance;
 }
 
-export async function getConfig(): Promise<Config> {
+export async function loadSavedConfig(): Promise<Config> {
 	const config = await getConfigStore().then((store: Store) => store.get<Config>('config'));
 	logger.info(`Loaded config: ${JSON.stringify(config, null, 4)}`);
 	return {

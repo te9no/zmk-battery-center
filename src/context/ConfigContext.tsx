@@ -1,5 +1,5 @@
 import { createContext, useContext, Dispatch, SetStateAction, ReactNode, useState, useEffect } from 'react';
-import { defaultConfig, getConfig, setConfig as storeSetConfig, type Config } from '../utils/config';
+import { defaultConfig, loadSavedConfig, setConfig as storeSetConfig, type Config } from '../utils/config';
 import { useTheme, type Theme } from '@/context/theme-provider';
 import { logger } from '@/utils/log';
 import { listen, emit } from '@tauri-apps/api/event';
@@ -23,7 +23,7 @@ export const ConfigProvider = ({ children }: { children: ReactNode }) => {
 	useEffect(() => {
 		let isMounted = true;
 		(async () => {
-			const loaded = await getConfig();
+			const loaded = await loadSavedConfig();
 			if (isMounted) {
 				setConfig(loaded);
 				setIsLoaded(true);
