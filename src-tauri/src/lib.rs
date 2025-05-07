@@ -61,16 +61,6 @@ pub fn run() {
         .setup(|app| {
             #[cfg(desktop)]
             {
-                // mainウィンドウのフォーカスが外れたときに自動でhide
-                if let Some(window) = app.get_webview_window("main") {
-                    let window_ = window.clone();
-                    window.on_window_event(move |event| {
-                        if let tauri::WindowEvent::Focused(false) = event {
-                            let _ = window_.hide();
-                        }
-                    });
-                }
-
                 let tray = app.tray_by_id("tray_icon").unwrap();
 
                 tray.on_tray_icon_event(|tray_handle, event| {

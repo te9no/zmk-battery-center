@@ -43,3 +43,51 @@ export function moveWindowToTrayCenter() {
         logger.warn(`moveWindowToTrayCenter(): skipped because isTrayPositionSet is false`);
     }
 }
+
+let isWindowMoving = false;
+let isWindowFocused = false;
+let moveTimeout: NodeJS.Timeout | null = null;
+let focusTimeout: NodeJS.Timeout | null = null;
+
+async function handleWindowEvent() {
+    const window = getCurrentWebviewWindow();
+
+    const unlistenOnMoved = window.onMoved(({ payload: position }) => {
+        isWindowMoving = true;
+        logger.info(`Window moved: ${position.x}, ${position.y}`);
+
+        if(moveTimeout){
+            clearTimeout(moveTimeout);
+        }
+
+        moveTimeout = setTimeout(() => {
+            isWindowMoving = false;
+            logger.info(`isWindowMoving: ${isWindowMoving}`);
+        }, 200);
+    });
+
+    const unlistenOnFocusChanged = window.onFocusChanged(({ payload: focused }) => {
+        isWindowFocused = focused;
+        logger.info(`isWindowFocused: ${isWindowFocused}`);
+
+        if(!isWindowFocused && !isWindowMoving){
+            if(focusTimeout) {
+                clearTimeout(focusTimeout);
+            }
+
+            focusTimeout = setTimeout(() => {
+                if(!isWindowFocused && !isWindowMoving){
+                    hideWindow();
+                    logger.info(`hideWindow()`);
+                }
+            }, 200);
+        }
+    });
+
+    return async () => {
+        (await unlistenOnMoved)();
+        (await unlistenOnFocusChanged)();
+    };
+}
+
+handleWindowEvent();
