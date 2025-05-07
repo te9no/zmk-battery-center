@@ -16,7 +16,6 @@ export async function resizeWindow(x: number, y: number) {
 	if (window) {
 		await window.setSize(new LogicalSize(width, height));
 	}
-    moveWindowToTrayCenter();
 }
 
 export async function resizeWindowToContent() {

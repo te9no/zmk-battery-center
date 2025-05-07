@@ -5,7 +5,7 @@ import { mockRegisteredDevices } from "./utils/mockData";
 import Button from "./components/Button";
 import RegisteredDevicesPanel from "./components/RegisteredDevicesPanel";
 import { logger } from "./utils/log";
-import { resizeWindowToContent } from "./utils/window";
+import { moveWindowToTrayCenter, resizeWindowToContent } from "./utils/window";
 import { PlusIcon, ArrowPathIcon, Cog8ToothIcon } from "@heroicons/react/24/outline";
 import Modal from "./components/Modal";
 import { useConfigContext } from "@/context/ConfigContext";
@@ -213,6 +213,9 @@ function App() {
 	// ウィンドウサイズ変更
 	useEffect(() => {
 		resizeWindowToContent();
+		if(!config.manualWindowPositioning){
+			moveWindowToTrayCenter();
+		}
 	}, [registeredDevices, state]);
 
 	useEffect(() => {
