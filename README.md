@@ -53,7 +53,7 @@ You can manually move the window to the correct position to address this issue.
 
 1. Right click the tray icon
 2. Click `Control` > `Manual window positioning` in the menu
-3. Move the window to any position you like
+3. Now you can grab the top of the window to move it to any position you like
 
 ## Contributing
 Issues and PRs are appreciated.

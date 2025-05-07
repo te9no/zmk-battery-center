@@ -260,7 +260,7 @@ function App() {
 					<div>
 						{/* ドラッグエリア */}
 						{ config.manualWindowPositioning && (
-							<div data-tauri-drag-region className="fixed top-0 left-0 w-full h-10 bg-transparent z-0"></div>
+							<div data-tauri-drag-region className="fixed top-0 left-0 w-full h-14 bg-transparent z-0 cursor-grab active:cursor-grabbing"></div>
 						)}
 
 						{/* デバッグモード切り替えボタン */}
