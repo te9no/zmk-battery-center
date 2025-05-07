@@ -1,12 +1,9 @@
 use tauri;
 use tauri::{
 	AppHandle,
-    Manager,
+	Emitter,
     tray::{MouseButton, MouseButtonState, TrayIconEvent},
 };
-use tauri_plugin_positioner::Position;
-use tauri::Emitter;
-use tauri_plugin_positioner::WindowExt;
 
 pub fn init_tray(app_handle: AppHandle){
 	let tray = app_handle.tray_by_id("tray_icon").unwrap();
@@ -27,15 +24,7 @@ pub fn init_tray(app_handle: AppHandle){
 				button_state: MouseButtonState::Up,
 				..
 			} => {
-				if let Some(window) = app.get_webview_window("main") {
-					if window.is_visible().unwrap() {
-						let _ = window.hide();
-					} else {
-						let _ = window.move_window(Position::TrayCenter);
-						let _ = window.show();
-						let _ = window.set_focus();
-					}
-				}
+				let _ = app.emit("tray_left_click", event.clone());
 			}
 			_ => {}
 		}

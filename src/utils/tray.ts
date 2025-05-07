@@ -1,17 +1,19 @@
-import { once, emit } from '@tauri-apps/api/event';
+import { once, listen, emit } from '@tauri-apps/api/event';
 import { TrayIcon, TrayIconEvent } from '@tauri-apps/api/tray';
 import { Menu, Submenu, CheckMenuItem } from '@tauri-apps/api/menu';
-import { showWindow } from './window';
+import { isWindowVisible, showWindow } from './window';
 import { exitApp } from './common';
 import { openUrl } from '@tauri-apps/plugin-opener';
 import { logger } from './log';
 import { getConfig } from './config';
-
+import { hideWindow, moveWindowToTrayCenter, moveWindowToCenter, setWindowFocus } from './window';
 /*
 	plugin-positionerが動作可能かを判断するためのフラグ。
 	一度ユーザーがトレイクリック/ホバーするまでplugin-positionerが動作しない。
 */
 export let isTrayPositionSet = false;
+
+let manualWindowPositioning = false;
 
 once<TrayIconEvent>('tray_event', () => {
     isTrayPositionSet = true;
@@ -21,8 +23,24 @@ once<TrayIconEvent>('tray_event', () => {
 async function setupTray(){
 	const tray = await TrayIcon.getById('tray_icon');
 
+	listen('tray_left_click', async (_event) => {
+		const isVisible = await isWindowVisible();
+		if(isVisible){
+			hideWindow();
+		} else {
+			showWindow();
+			if(manualWindowPositioning){
+				moveWindowToCenter();
+			} else {
+				moveWindowToTrayCenter();
+			}
+			setWindowFocus();
+		}
+	});
+
 	// Load the initial config to set the menu item's checked state
 	const initialConfig = await getConfig();
+	manualWindowPositioning = initialConfig.manualWindowPositioning;
 
 	const menu = await Menu.new({
 		items: [
@@ -55,6 +73,7 @@ async function setupTray(){
 							if (!thisMenu) return;
 
 							const isChecked = await thisMenu.isChecked();
+							manualWindowPositioning = isChecked;
 
 							await emit('update-config', { manualWindowPositioning: isChecked });
 
