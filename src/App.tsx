@@ -212,10 +212,17 @@ function App() {
 
 	// ウィンドウサイズ変更
 	useEffect(() => {
-		resizeWindowToContent();
-		if(!config.manualWindowPositioning){
-			moveWindowToTrayCenter();
-		}
+		resizeWindowToContent().then(() => {
+			if(!config.manualWindowPositioning){
+				moveWindowToTrayCenter();
+				setTimeout(() => {
+					moveWindowToTrayCenter();
+				}, 50);
+				setTimeout(() => {
+					moveWindowToTrayCenter();
+				}, 100);
+			}
+		});
 	}, [registeredDevices, state]);
 
 	useEffect(() => {

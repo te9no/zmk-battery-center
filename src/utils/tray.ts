@@ -14,7 +14,7 @@ import { hideWindow, moveWindowToTrayCenter, setWindowFocus } from './window';
 */
 export let isTrayPositionSet = false;
 
-let manualWindowPositioning = false;
+export let manualWindowPositioning = false;
 
 once<TrayIconEvent>('tray_event', () => {
     isTrayPositionSet = true;
@@ -75,6 +75,7 @@ async function setupTray(){
 
 							const isChecked = await thisMenu.isChecked();
 							manualWindowPositioning = isChecked;
+							showWindow();
 
 							await emit('update-config', { manualWindowPositioning: isChecked });
 
