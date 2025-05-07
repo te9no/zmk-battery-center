@@ -1,16 +1,11 @@
-use tauri::Emitter;
-use tauri::{
-    tray::{MouseButton, MouseButtonState, TrayIconEvent},
-    Manager,
-};
 use tauri_plugin_autostart::MacosLauncher;
-use tauri_plugin_positioner::{Position, WindowExt};
 use ansi_term::Color;
 
 // モジュール宣言を追加
 mod ble;
 mod common;
 mod window;
+mod tray;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -59,40 +54,7 @@ pub fn run() {
             window::get_windows_text_scale_factor,
         ])
         .setup(|app| {
-            #[cfg(desktop)]
-            {
-                let tray = app.tray_by_id("tray_icon").unwrap();
-
-                tray.on_tray_icon_event(|tray_handle, event| {
-                    let app = tray_handle.app_handle();
-
-                    // Let positioner know about the event
-                    tauri_plugin_positioner::on_tray_event(app, &event);
-
-                    // Let frontend know about the event
-                    let _ = app.emit("tray_event", event.clone());
-
-                    // Handle click event
-                    match event {
-                        TrayIconEvent::Click {
-                            button: MouseButton::Left,
-                            button_state: MouseButtonState::Up,
-                            ..
-                        } => {
-                            if let Some(window) = app.get_webview_window("main") {
-                                if window.is_visible().unwrap() {
-                                    let _ = window.hide();
-                                } else {
-                                    let _ = window.move_window(Position::TrayCenter);
-                                    let _ = window.show();
-                                    let _ = window.set_focus();
-                                }
-                            }
-                        }
-                        _ => {}
-                    }
-                });
-            }
+            tray::init_tray(app.handle().clone());
 
             #[cfg(target_os = "macos")]
             {
