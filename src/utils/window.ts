@@ -4,6 +4,7 @@ import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { isTrayPositionSet } from './tray';
 import { invoke } from '@tauri-apps/api/core';
 import { logger } from './log';
+import { emit } from '@tauri-apps/api/event';
 
 export async function resizeWindow(x: number, y: number) {
 	logger.info(`resizeWindow: ${x}x${y}`);
@@ -60,9 +61,10 @@ async function handleWindowEvent() {
             clearTimeout(moveTimeout);
         }
 
-        moveTimeout = setTimeout(() => {
+        moveTimeout = setTimeout(async () => {
             isWindowMoving = false;
             logger.info(`isWindowMoving: ${isWindowMoving}`);
+            await emit('update-config', { windowPosition: { x: position.x, y: position.y } });
         }, 200);
     });
 
