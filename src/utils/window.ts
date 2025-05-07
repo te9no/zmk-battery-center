@@ -6,11 +6,11 @@ import { invoke } from '@tauri-apps/api/core';
 import { logger } from './log';
 
 export async function resizeWindow(x: number, y: number) {
-	logger.debug(`resizeWindow: ${x}x${y}`);
+	logger.info(`resizeWindow: ${x}x${y}`);
     const scaleFactor = await invoke<number>('get_windows_text_scale_factor');
     const width = x * scaleFactor;
     const height = y * scaleFactor;
-    logger.debug(`scaled size: ${width}x${height}`);
+    logger.info(`scaled size: ${width}x${height}`);
 
 	const window = getCurrentWebviewWindow();
 	if (window) {
@@ -41,6 +41,6 @@ export function moveWindowToTrayCenter() {
     if(isTrayPositionSet){
         moveWindow(Position.TrayCenter);
     } else {
-        logger.info(`moveWindowToTrayCenter(): skipped because isTrayPositionSet is false`);
+        logger.warn(`moveWindowToTrayCenter(): skipped because isTrayPositionSet is false`);
     }
 }

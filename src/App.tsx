@@ -255,6 +255,11 @@ function App() {
 			) : (
 				<>
 					<div>
+						{/* ドラッグエリア */}
+						{ config.manualWindowPositioning && (
+							<div data-tauri-drag-region className="fixed top-0 left-0 w-full h-10 bg-transparent z-0"></div>
+						)}
+
 						{/* デバッグモード切り替えボタン */}
 						{IS_DEV && (
 							<div className="fixed top-4 left-4">
@@ -270,7 +275,7 @@ function App() {
 						<div className="flex flex-row ml-auto justify-end">
 							{/* 右上+ボタン */}
 							<Button
-								className="w-10 h-10 rounded-lg bg-transparent flex items-center justify-center text-2xl !p-0 !px-0 !py-0 hover:bg-secondary"
+								className="w-10 h-10 rounded-lg bg-transparent flex items-center justify-center text-2xl !p-0 !px-0 !py-0 hover:bg-secondary relative z-10"
 								onClick={handleOpenModal}
 								aria-label="Add Device"
 							>
@@ -279,7 +284,7 @@ function App() {
 
 							{/* リロードボタン */}
 							<Button
-								className="w-10 h-10 rounded-lg bg-transparent flex items-center justify-center text-2xl !p-0 text-foreground hover:bg-secondary disabled:!text-muted-foreground disabled:hover:bg-transparent"
+								className="w-10 h-10 rounded-lg bg-transparent flex items-center justify-center text-2xl !p-0 text-foreground hover:bg-secondary disabled:!text-muted-foreground disabled:hover:bg-transparent relative z-10"
 								onClick={handleReload}
 								aria-label="Reload"
 								disabled={registeredDevices.length === 0 || state === State.fetchingBatteryInfo}
@@ -289,7 +294,7 @@ function App() {
 
 							{/* 設定ボタン */}
 							<Button
-								className="w-10 h-10 rounded-lg bg-transparent hover:bg-secondary flex items-center justify-center text-2xl !text-foreground !p-0"
+								className="w-10 h-10 rounded-lg bg-transparent hover:bg-secondary flex items-center justify-center text-2xl !text-foreground !p-0 relative z-10"
 								onClick={() => setState(State.settings)}
 								aria-label="Settings"
 							>
