@@ -45,6 +45,16 @@ Download from [Releases](https://github.com/kot149/zmk-battery-center/releases).
   See the ZMK Documentation [about Bluetooth](https://zmk.dev/docs/config/system#bluetooth) and [about battery](https://zmk.dev/docs/config/battery) for more details.
 - On macOS, make sure Bluetooth permission is granted to the app.
 
+### Window position is misaligned
+
+Window position may be misaligned if the OS has problems handling multiple monitors or you are using vertical taskbar on Windows.
+
+You can manually move the window to the correct position to address this issue.
+
+1. Right click the tray icon
+2. Click `Control` > `Manual window positioning` in the menu
+3. Move the window to any position you like
+
 ## Contributing
 Issues and PRs are appreciated.
 
