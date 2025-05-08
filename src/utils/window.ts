@@ -4,8 +4,8 @@ import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { isTrayPositionSet } from './tray';
 import { invoke } from '@tauri-apps/api/core';
 import { logger } from './log';
-import { restoreStateCurrent, saveWindowState, StateFlags } from '@tauri-apps/plugin-window-state';
 import { manualWindowPositioning } from './tray';
+import { emit } from '@tauri-apps/api/event';
 
 export async function resizeWindow(x: number, y: number) {
 	logger.info(`resizeWindow: ${x}x${y}`);
@@ -72,11 +72,10 @@ let focusTimeout: NodeJS.Timeout | null = null;
 
 async function handleWindowEvent() {
     const window = getCurrentWebviewWindow();
-    restoreStateCurrent(StateFlags.POSITION);
 
-    const unlistenOnMoved = window.onMoved(() => {
+    const unlistenOnMoved = window.onMoved(async ({ payload: position }) => {
         if(!isWindowMoving){
-            logger.debug("Window move stard");
+            logger.debug("Window move start");
         }
         isWindowMoving = true;
 
@@ -87,7 +86,9 @@ async function handleWindowEvent() {
         moveTimeout = setTimeout(async () => {
             isWindowMoving = false;
             logger.debug("Window move end");
-            saveWindowState(StateFlags.POSITION);
+
+            await emit('update-window-position', { x: position.x, y: position.y });
+            logger.info(`Emitted update-window-position: ${position.x}, ${position.y}`);
         }, 200);
     });
 
@@ -120,3 +121,18 @@ async function handleWindowEvent() {
 }
 
 handleWindowEvent();
+
+export async function restoreWindowPosition(position?: { x: number; y: number }) {
+    try {
+        if (position && typeof position.x === 'number' && typeof position.y === 'number') {
+            logger.info(`Restoring window position from provided config: ${position.x}, ${position.y}`);
+            const currentWindow = getCurrentWebviewWindow();
+            await currentWindow.setPosition(new PhysicalPosition(position.x, position.y));
+        } else {
+            logger.info('No saved window position provided or position is invalid for restoreWindowPosition.');
+        }
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        logger.error('Failed to restore window position: ' + errorMessage);
+    }
+}

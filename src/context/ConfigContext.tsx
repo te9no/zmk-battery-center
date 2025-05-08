@@ -3,6 +3,7 @@ import { defaultConfig, loadSavedConfig, setConfig as storeSetConfig, type Confi
 import { useTheme, type Theme } from '@/context/theme-provider';
 import { logger } from '@/utils/log';
 import { listen, emit } from '@tauri-apps/api/event';
+import { restoreWindowPosition } from '@/utils/window';
 
 // Configとsetterをまとめて提供するContextの型定義
 type ConfigContextType = {
@@ -30,6 +31,9 @@ export const ConfigProvider = ({ children }: { children: ReactNode }) => {
 				setTheme(loaded.theme as Theme);
 				logger.info(`Loaded config: ${JSON.stringify(loaded, null, 4)}`);
 				logger.info(`Theme set to: ${loaded.theme}`);
+				if (loaded.windowPosition) {
+					await restoreWindowPosition(loaded.windowPosition);
+				}
 			}
 		})();
 		return () => { isMounted = false; };
@@ -46,6 +50,24 @@ export const ConfigProvider = ({ children }: { children: ReactNode }) => {
 			})();
 		}
 	}, [config, isLoaded]);
+
+	// Listen for window position updates from window.ts
+	useEffect(() => {
+		const unlistenPromise = listen<{ x: number; y: number }>('update-window-position', (event) => {
+			const { x, y } = event.payload;
+			logger.info(`Received update-window-position event: setting to ${x}, ${y}`);
+			setConfig(prevConfig => {
+				if (prevConfig.windowPosition?.x !== x || prevConfig.windowPosition?.y !== y) {
+					return {
+						...prevConfig,
+						windowPosition: { x, y },
+					};
+				}
+				return prevConfig;
+			});
+		});
+		return () => { unlistenPromise.then(unlisten => unlisten()); };
+	}, []);
 
 	// Listen for config updates from tray
 	useEffect(() => {

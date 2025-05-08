@@ -10,7 +10,6 @@
   ],
   "permissions": [
     "positioner:default",
-    "autostart:default",
-    "window-state:default"
+    "autostart:default"
   ]
 }
