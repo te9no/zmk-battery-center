@@ -42,30 +42,11 @@ export const ConfigProvider = ({ children }: { children: ReactNode }) => {
 				await storeSetConfig(config);
 				// Emit event for tray to listen
 				await emit('config-changed', config);
-				logger.info(`Emitted config-changed: ${JSON.stringify(config, null, 2)}`);
 			})();
 		}
 	}, [config, isLoaded]);
 
-	// Listen for window position updates from window.ts
-	useEffect(() => {
-		const unlistenPromise = listen<{ x: number; y: number }>('update-window-position', (event) => {
-			const { x, y } = event.payload;
-			logger.info(`Received update-window-position event: setting to ${x}, ${y}`);
-			setConfig(prevConfig => {
-				if (prevConfig.windowPosition?.x !== x || prevConfig.windowPosition?.y !== y) {
-					return {
-						...prevConfig,
-						windowPosition: { x, y },
-					};
-				}
-				return prevConfig;
-			});
-		});
-		return () => { unlistenPromise.then(unlisten => unlisten()); };
-	}, []);
-
-	// Listen for config updates from tray
+	// Listen for config updates from tray.ts and window.ts
 	useEffect(() => {
 		const unlistenPromise = listen<Partial<Config>>('update-config', (event) => {
 			const updates = event.payload;

@@ -81,8 +81,6 @@ async function setupTray(){
 							showWindow();
 
 							await emit('update-config', { manualWindowPositioning: isChecked });
-
-							logger.info(`Emitted update-config: manualWindowPositioning = ${isChecked}`);
 						},
 					},
 				]
