@@ -5,12 +5,14 @@
   "windows": ["main"],
   "permissions": [
     "core:default",
-    "opener:allow-open-url",
-    "opener:allow-default-urls",
     "core:window:allow-show",
     "core:window:allow-hide",
+    "core:window:allow-set-focus",
     "core:window:allow-set-size",
+    "core:window:allow-start-dragging",
     "positioner:default",
+    "opener:allow-open-url",
+    "opener:allow-default-urls",
     "store:default",
     "notification:default",
     "log:default"

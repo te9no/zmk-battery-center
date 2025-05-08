@@ -1,7 +1,8 @@
 import { createContext, useContext, Dispatch, SetStateAction, ReactNode, useState, useEffect } from 'react';
-import { defaultConfig, getConfig, setConfig as storeSetConfig, type Config } from '../utils/config';
+import { defaultConfig, loadSavedConfig, setConfig as storeSetConfig, type Config } from '../utils/config';
 import { useTheme, type Theme } from '@/context/theme-provider';
 import { logger } from '@/utils/log';
+import { listen, emit } from '@tauri-apps/api/event';
 
 // Configとsetterをまとめて提供するContextの型定義
 type ConfigContextType = {
@@ -22,7 +23,7 @@ export const ConfigProvider = ({ children }: { children: ReactNode }) => {
 	useEffect(() => {
 		let isMounted = true;
 		(async () => {
-			const loaded = await getConfig();
+			const loaded = await loadSavedConfig();
 			if (isMounted) {
 				setConfig(loaded);
 				setIsLoaded(true);
@@ -32,16 +33,34 @@ export const ConfigProvider = ({ children }: { children: ReactNode }) => {
 			}
 		})();
 		return () => { isMounted = false; };
-	}, []);
+	}, [setTheme]);
 
-	// 設定を永続化
+	// 設定を永続化し、変更を通知
 	useEffect(() => {
 		if (isLoaded) {
 			(async () => {
 				await storeSetConfig(config);
+				// Emit event for tray to listen
+				await emit<Config>('config-changed', config);
 			})();
 		}
 	}, [config, isLoaded]);
+
+	// Listen for config updates from tray.ts and window.ts
+	useEffect(() => {
+		const unlistenPromise = listen<Partial<Config>>('update-config', (event) => {
+			const updates = event.payload;
+			logger.info(`Received update-config event: ${JSON.stringify(updates)}`);
+			setConfig(prevConfig => ({
+				...prevConfig,
+				...updates,
+			}));
+		});
+
+		return () => {
+			unlistenPromise.then(unlisten => unlisten());
+		};
+	}, []);
 
 	return (
 		<ConfigContext.Provider value={{ config, setConfig }}>

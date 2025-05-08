@@ -16,6 +16,11 @@ export type Config = {
 	autoStart: boolean;
 	pushNotification: boolean;
 	pushNotificationWhen: Record<NotificationType, boolean>;
+	manualWindowPositioning: boolean;
+	windowPosition: {
+		x: number;
+		y: number;
+	};
 }
 
 export const defaultConfig: Config = {
@@ -28,6 +33,11 @@ export const defaultConfig: Config = {
 		[NotificationType.Connected]: true,
 		[NotificationType.Disconnected]: true,
 	},
+	manualWindowPositioning: false,
+	windowPosition: {
+		x: 0,
+		y: 0,
+	},
 };
 
 let configStoreInstance: Store | null = null;
@@ -39,7 +49,7 @@ async function getConfigStore() {
 	return configStoreInstance;
 }
 
-export async function getConfig(): Promise<Config> {
+export async function loadSavedConfig(): Promise<Config> {
 	const config = await getConfigStore().then((store: Store) => store.get<Config>('config'));
 	logger.info(`Loaded config: ${JSON.stringify(config, null, 4)}`);
 	return {
