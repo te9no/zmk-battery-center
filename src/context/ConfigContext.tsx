@@ -3,7 +3,6 @@ import { defaultConfig, loadSavedConfig, setConfig as storeSetConfig, type Confi
 import { useTheme, type Theme } from '@/context/theme-provider';
 import { logger } from '@/utils/log';
 import { listen, emit } from '@tauri-apps/api/event';
-import { restoreWindowPosition } from '@/utils/window';
 
 // Configとsetterをまとめて提供するContextの型定義
 type ConfigContextType = {
@@ -31,9 +30,6 @@ export const ConfigProvider = ({ children }: { children: ReactNode }) => {
 				setTheme(loaded.theme as Theme);
 				logger.info(`Loaded config: ${JSON.stringify(loaded, null, 4)}`);
 				logger.info(`Theme set to: ${loaded.theme}`);
-				if (loaded.windowPosition) {
-					await restoreWindowPosition(loaded.windowPosition);
-				}
 			}
 		})();
 		return () => { isMounted = false; };

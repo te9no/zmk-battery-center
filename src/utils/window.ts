@@ -7,6 +7,23 @@ import { logger } from './log';
 import { manualWindowPositioning } from './tray';
 import { emit } from '@tauri-apps/api/event';
 
+let isWindowMoving = false;
+let isWindowMovingByPlugin = false;
+let isWindowFocused = false;
+let moveTimeout: NodeJS.Timeout | null = null;
+let focusTimeout: NodeJS.Timeout | null = null;
+
+async function saveWindowPosition(position?: { x: number, y: number }){
+    if(!position){
+        const window = getCurrentWebviewWindow();
+        position = await window.position();
+    }
+    if(!isWindowMoving && !isWindowMovingByPlugin){
+        await emit('update-config', { windowPosition: { x: position.x, y: position.y } });
+        logger.info(`Window moved to tray center`);
+    }
+}
+
 export async function resizeWindow(x: number, y: number) {
 	logger.info(`resizeWindow: ${x}x${y}`);
     const scaleFactor = await invoke<number>('get_windows_text_scale_factor');
@@ -45,30 +62,33 @@ export function setWindowFocus() {
     getCurrentWebviewWindow().setFocus();
 }
 
-export function moveWindowToTrayCenter() {
+export async function moveWindowToTrayCenter() {
     if(isTrayPositionSet){
-        moveWindow(Position.TrayCenter);
-        logger.info(`Window moved to tray center`);
+        isWindowMovingByPlugin = true;
+        await moveWindow(Position.TrayCenter);
+        isWindowMovingByPlugin = false;
+        await saveWindowPosition();
     } else {
         logger.warn(`moveWindowToTrayCenter(): skipped because isTrayPositionSet is false`);
     }
 }
 
-export function moveWindowToCenter() {
-    moveWindow(Position.Center);
+export async function moveWindowToCenter() {
+    isWindowMovingByPlugin = true;
+    await moveWindow(Position.Center);
+    isWindowMovingByPlugin = false;
+    await saveWindowPosition();
 }
 
-export function moveWindowTo(x: number, y: number) {
+export async function moveWindowTo(x: number, y: number) {
     const window = getCurrentWebviewWindow();
     if (window) {
-        window.setPosition(new PhysicalPosition(x, y));
+        isWindowMovingByPlugin = true;
+        await window.setPosition(new PhysicalPosition(x, y));
+        isWindowMovingByPlugin = false;
+        await saveWindowPosition();
     }
 }
-
-let isWindowMoving = false;
-let isWindowFocused = false;
-let moveTimeout: NodeJS.Timeout | null = null;
-let focusTimeout: NodeJS.Timeout | null = null;
 
 async function handleWindowEvent() {
     const window = getCurrentWebviewWindow();
@@ -87,8 +107,9 @@ async function handleWindowEvent() {
             isWindowMoving = false;
             logger.debug("Window move end");
 
-            await emit('update-window-position', { x: position.x, y: position.y });
-            logger.info(`Emitted update-window-position: ${position.x}, ${position.y}`);
+            if(!isWindowMovingByPlugin){
+                await saveWindowPosition(position);
+            }
         }, 200);
     });
 
@@ -121,18 +142,3 @@ async function handleWindowEvent() {
 }
 
 handleWindowEvent();
-
-export async function restoreWindowPosition(position?: { x: number; y: number }) {
-    try {
-        if (position && typeof position.x === 'number' && typeof position.y === 'number') {
-            logger.info(`Restoring window position from provided config: ${position.x}, ${position.y}`);
-            const currentWindow = getCurrentWebviewWindow();
-            await currentWindow.setPosition(new PhysicalPosition(position.x, position.y));
-        } else {
-            logger.info('No saved window position provided or position is invalid for restoreWindowPosition.');
-        }
-    } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        logger.error('Failed to restore window position: ' + errorMessage);
-    }
-}
