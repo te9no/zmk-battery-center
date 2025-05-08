@@ -5,9 +5,8 @@ import { isWindowVisible, showWindow } from './window';
 import { exitApp } from './common';
 import { openUrl } from '@tauri-apps/plugin-opener';
 import { logger } from './log';
-import { loadSavedConfig } from './config';
-import { hideWindow, moveWindowToTrayCenter, setWindowFocus, moveWindowTo } from './window';
-
+import { hideWindow, moveWindowToTrayCenter, setWindowFocus } from './window';
+import { Config } from './config';
 /*
 	plugin-positionerが動作可能かを判断するためのフラグ。
 	一度ユーザーがトレイクリック/ホバーするまでplugin-positionerが動作しない。
@@ -21,89 +20,87 @@ once<TrayIconEvent>('tray_event', () => {
 	logger.info(`Tray position set`);
 });
 
-async function setupTray(){
-	const tray = await TrayIcon.getById('tray_icon');
-
-	listen('tray_left_click', async (_event) => {
-		const isVisible = await isWindowVisible();
-		if(isVisible){
-			hideWindow();
-		} else {
-			showWindow();
-			if(manualWindowPositioning){
-				// moveWindowToCenter();
-			} else {
-				moveWindowToTrayCenter();
-			}
-			setWindowFocus();
-		}
-	});
-
-	// Load the initial config to set the menu item's checked state
-	const initialConfig = await loadSavedConfig();
+once<Config>('config-changed', async ({ payload: initialConfig }) => {
 	manualWindowPositioning = initialConfig.manualWindowPositioning;
-	if(manualWindowPositioning){
-		moveWindowTo(initialConfig.windowPosition.x, initialConfig.windowPosition.y);
+
+	async function setupTray(){
+		const tray = await TrayIcon.getById('tray_icon');
+
+		listen('tray_left_click', async (_event) => {
+			const isVisible = await isWindowVisible();
+			if(isVisible){
+				hideWindow();
+			} else {
+				showWindow();
+				if(manualWindowPositioning){
+					// moveWindowToCenter();
+				} else {
+					moveWindowToTrayCenter();
+				}
+				setWindowFocus();
+			}
+		});
+
+
+		const menu = await Menu.new({
+			items: [
+				{
+					id: 'show',
+					text: 'Show',
+					action: () => {
+						showWindow();
+					}
+				},
+				{
+					id: 'control',
+					text: 'Control',
+					items: [
+						{
+							id: 'refresh',
+							text: 'Refresh window',
+							action: () => {
+								location.reload();
+								showWindow();
+							},
+						},
+						{
+							id: 'manual_window_positioning',
+							text: 'Manual window positioning',
+							checked: initialConfig.manualWindowPositioning,
+							action: async (trayId: string) => {
+								const controlMenu = await menu?.get('control') as Submenu | null;
+								const thisMenu = await controlMenu?.get(trayId) as CheckMenuItem | null;
+								if (!thisMenu) return;
+
+								const isChecked = await thisMenu.isChecked();
+								manualWindowPositioning = isChecked;
+								showWindow();
+
+								await emit('update-config', { manualWindowPositioning: isChecked });
+							},
+						},
+					]
+				},
+				{
+					id: 'about',
+					text: 'About',
+					action: () => {
+						openUrl('https://github.com/kot149/zmk-battery-center');
+					}
+				},
+				{
+					id: 'quit',
+					text: 'Quit',
+					action: () => {
+						exitApp();
+					}
+				}
+			]
+		});
+
+		tray?.setMenu(menu);
+		tray?.setShowMenuOnLeftClick(false);
 	}
 
-	const menu = await Menu.new({
-		items: [
-			{
-				id: 'show',
-				text: 'Show',
-				action: () => {
-					showWindow();
-				}
-			},
-			{
-				id: 'control',
-				text: 'Control',
-				items: [
-					{
-						id: 'refresh',
-						text: 'Refresh window',
-						action: () => {
-							location.reload();
-							showWindow();
-						},
-					},
-					{
-						id: 'manual_window_positioning',
-						text: 'Manual window positioning',
-						checked: initialConfig.manualWindowPositioning,
-						action: async (trayId: string) => {
-							const controlMenu = await menu?.get('control') as Submenu | null;
-							const thisMenu = await controlMenu?.get(trayId) as CheckMenuItem | null;
-							if (!thisMenu) return;
-
-							const isChecked = await thisMenu.isChecked();
-							manualWindowPositioning = isChecked;
-							showWindow();
-
-							await emit('update-config', { manualWindowPositioning: isChecked });
-						},
-					},
-				]
-			},
-			{
-				id: 'about',
-				text: 'About',
-				action: () => {
-					openUrl('https://github.com/kot149/zmk-battery-center');
-				}
-			},
-			{
-				id: 'quit',
-				text: 'Quit',
-				action: () => {
-					exitApp();
-				}
-			}
-		]
-	});
-
-	tray?.setMenu(menu);
-	tray?.setShowMenuOnLeftClick(false);
-}
-
-setupTray();
+	setupTray();
+});

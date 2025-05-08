@@ -41,7 +41,7 @@ export const ConfigProvider = ({ children }: { children: ReactNode }) => {
 			(async () => {
 				await storeSetConfig(config);
 				// Emit event for tray to listen
-				await emit('config-changed', config);
+				await emit<Config>('config-changed', config);
 			})();
 		}
 	}, [config, isLoaded]);

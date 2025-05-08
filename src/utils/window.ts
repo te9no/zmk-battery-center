@@ -5,13 +5,20 @@ import { isTrayPositionSet } from './tray';
 import { invoke } from '@tauri-apps/api/core';
 import { logger } from './log';
 import { manualWindowPositioning } from './tray';
-import { emit } from '@tauri-apps/api/event';
+import { emit, once } from '@tauri-apps/api/event';
+import { Config } from './config';
 
 let isWindowMoving = false;
 let isWindowMovingByPlugin = false;
 let isWindowFocused = false;
 let moveTimeout: NodeJS.Timeout | null = null;
 let focusTimeout: NodeJS.Timeout | null = null;
+
+async function waitForWindowMoveEnd(){
+    while(isWindowMoving || isWindowMovingByPlugin){
+        await new Promise(resolve => setTimeout(resolve, 100));
+    }
+}
 
 async function saveWindowPosition(position?: { x: number, y: number }){
     if(!position){
@@ -64,16 +71,20 @@ export function setWindowFocus() {
 
 export async function moveWindowToTrayCenter() {
     if(isTrayPositionSet){
+        await waitForWindowMoveEnd();
+        logger.debug(`Moving window to tray center`);
         isWindowMovingByPlugin = true;
         await moveWindow(Position.TrayCenter);
         isWindowMovingByPlugin = false;
         await saveWindowPosition();
     } else {
-        logger.warn(`moveWindowToTrayCenter(): skipped because isTrayPositionSet is false`);
+        logger.warn(`Skipped moving window to tray center because tray position is not set`);
     }
 }
 
 export async function moveWindowToCenter() {
+    await waitForWindowMoveEnd();
+    logger.debug(`Moving window to center`);
     isWindowMovingByPlugin = true;
     await moveWindow(Position.Center);
     isWindowMovingByPlugin = false;
@@ -81,14 +92,21 @@ export async function moveWindowToCenter() {
 }
 
 export async function moveWindowTo(x: number, y: number) {
+    await waitForWindowMoveEnd();
     const window = getCurrentWebviewWindow();
-    if (window) {
-        isWindowMovingByPlugin = true;
-        await window.setPosition(new PhysicalPosition(x, y));
-        isWindowMovingByPlugin = false;
-        await saveWindowPosition();
-    }
+    logger.debug(`Moving window to ${x}, ${y}`);
+    isWindowMovingByPlugin = true;
+    await window.setPosition(new PhysicalPosition(x, y));
+    isWindowMovingByPlugin = false;
+    await saveWindowPosition();
 }
+
+// 最初のconfig読み込み時、保存された位置にwindowを移動する
+once<Config>('config-changed', async ({ payload: initialConfig }) => {
+	if(initialConfig.manualWindowPositioning){
+		moveWindowTo(initialConfig.windowPosition.x, initialConfig.windowPosition.y);
+	}
+});
 
 async function handleWindowEvent() {
     const window = getCurrentWebviewWindow();
