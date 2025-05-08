@@ -33,7 +33,7 @@ const RegisteredDevicesPanel: React.FC<DeviceListProps> = ({
 									<EllipsisHorizontalIcon className="size-6 mx-auto" />
 								</Button>
 								{menuOpen === device.id && (
-									<div className={`${deviceIdx !== registeredDevices.length - 1 ? 'absolute right-0' : 'fixed bottom-4 right-4'} w-30 bg-popover text-popover-foreground border border-border rounded-lg shadow-lg z-20`}>
+									<div className={`${deviceIdx !== registeredDevices.length - 1 || registeredDevices.length === 1 ? 'absolute right-0' : 'fixed bottom-4 right-4'} w-30 bg-popover text-popover-foreground border border-border rounded-lg shadow-lg z-20`}>
 										{ deviceIdx !== 0 && (
 											<Button
 												className="w-full text-left !text-sm !px-3 !py-2 bg-popover text-popover-foreground hover:bg-muted"
