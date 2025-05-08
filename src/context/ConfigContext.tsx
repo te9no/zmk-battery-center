@@ -8,6 +8,7 @@ import { listen, emit } from '@tauri-apps/api/event';
 type ConfigContextType = {
 	config: Config;
 	setConfig: Dispatch<SetStateAction<Config>>;
+	isConfigLoaded: boolean;
 };
 
 // Contextの生成
@@ -16,7 +17,7 @@ const ConfigContext = createContext<ConfigContextType | undefined>(undefined);
 // Providerコンポーネント
 export const ConfigProvider = ({ children }: { children: ReactNode }) => {
 	const [config, setConfig] = useState<Config>(defaultConfig);
-	const [isLoaded, setIsLoaded] = useState(false);
+	const [isConfigLoaded, setIsConfigLoaded] = useState(false);
 	const { setTheme } = useTheme();
 
 	// 初期設定をロード
@@ -26,7 +27,7 @@ export const ConfigProvider = ({ children }: { children: ReactNode }) => {
 			const loaded = await loadSavedConfig();
 			if (isMounted) {
 				setConfig(loaded);
-				setIsLoaded(true);
+				setIsConfigLoaded(true);
 				setTheme(loaded.theme as Theme);
 				logger.info(`Loaded config: ${JSON.stringify(loaded, null, 4)}`);
 				logger.info(`Theme set to: ${loaded.theme}`);
@@ -37,14 +38,14 @@ export const ConfigProvider = ({ children }: { children: ReactNode }) => {
 
 	// 設定を永続化し、変更を通知
 	useEffect(() => {
-		if (isLoaded) {
+		if (isConfigLoaded) {
 			(async () => {
 				await storeSetConfig(config);
 				// Emit event for tray to listen
 				await emit<Config>('config-changed', config);
 			})();
 		}
-	}, [config, isLoaded]);
+	}, [config, isConfigLoaded]);
 
 	// Listen for config updates from tray.ts and window.ts
 	useEffect(() => {
@@ -63,7 +64,7 @@ export const ConfigProvider = ({ children }: { children: ReactNode }) => {
 	}, []);
 
 	return (
-		<ConfigContext.Provider value={{ config, setConfig }}>
+		<ConfigContext.Provider value={{ config, setConfig, isConfigLoaded }}>
 			{children}
 		</ConfigContext.Provider>
 	);

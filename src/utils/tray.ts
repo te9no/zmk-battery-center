@@ -32,9 +32,7 @@ once<Config>('config-changed', async ({ payload: initialConfig }) => {
 				hideWindow();
 			} else {
 				showWindow();
-				if(manualWindowPositioning){
-					// moveWindowToCenter();
-				} else {
+				if(!manualWindowPositioning){
 					moveWindowToTrayCenter();
 				}
 				setWindowFocus();
@@ -49,6 +47,9 @@ once<Config>('config-changed', async ({ payload: initialConfig }) => {
 					text: 'Show',
 					action: () => {
 						showWindow();
+						if(!manualWindowPositioning){
+							moveWindowToTrayCenter();
+						}
 					}
 				},
 				{
@@ -61,6 +62,9 @@ once<Config>('config-changed', async ({ payload: initialConfig }) => {
 							action: () => {
 								location.reload();
 								showWindow();
+								if(!manualWindowPositioning){
+									moveWindowToTrayCenter();
+								}
 							},
 						},
 						{
@@ -75,6 +79,9 @@ once<Config>('config-changed', async ({ payload: initialConfig }) => {
 								const isChecked = await thisMenu.isChecked();
 								manualWindowPositioning = isChecked;
 								showWindow();
+								if(!manualWindowPositioning){
+									moveWindowToTrayCenter();
+								}
 
 								await emit('update-config', { manualWindowPositioning: isChecked });
 							},

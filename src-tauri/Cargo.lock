@@ -6176,7 +6176,7 @@ dependencies = [
 
 [[package]]
 name = "zmk-battery-center"
-version = "0.1.3"
+version = "0.2.0"
 dependencies = [
  "ansi_term",
  "bluest",

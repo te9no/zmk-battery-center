@@ -55,9 +55,6 @@ export function isWindowVisible() {
 }
 
 export function showWindow() {
-    if(!manualWindowPositioning){
-        moveWindowToTrayCenter();
-    }
     getCurrentWebviewWindow().show();
 }
 

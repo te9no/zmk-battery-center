@@ -39,7 +39,7 @@ function App() {
 	// 登録済みデバイス
 	const [registeredDevices, setRegisteredDevices] = useState<RegisteredDevice[]>(isDebugMode ? mockRegisteredDevices : []);
 	// デバイスロード完了フラグ
-	const [isLoaded, setIsLoaded] = useState(false);
+	const [isDeviceLoaded, setIsDeviceLoaded] = useState(false);
 
 	// デバッグモードの切り替え処理
 	const toggleDebugMode = () => {
@@ -59,7 +59,7 @@ function App() {
 	const [error, setError] = useState("");
 
 	// config値
-	const { config } = useConfigContext();
+	const { config, isConfigLoaded} = useConfigContext();
 
 	// 画面表示状態
 	const [state, setState] = useState<State>(State.main);
@@ -71,7 +71,7 @@ function App() {
 			const devices = await deviceStore.get<RegisteredDevice[]>("devices");
 			setRegisteredDevices(devices || []);
 			logger.info(`Loaded saved registered devices: ${JSON.stringify(devices, null, 4)}`);
-			setIsLoaded(true);
+			setIsDeviceLoaded(true);
 		};
 		fetchRegisteredDevices();
 	}, []);
@@ -213,7 +213,7 @@ function App() {
 	// ウィンドウサイズ変更
 	useEffect(() => {
 		resizeWindowToContent().then(() => {
-			if(!config.manualWindowPositioning){
+			if(isConfigLoaded && !config.manualWindowPositioning){
 				moveWindowToTrayCenter();
 				setTimeout(() => {
 					moveWindowToTrayCenter();
@@ -227,7 +227,7 @@ function App() {
 
 	useEffect(() => {
 		// デバイス一覧保存
-		if(isLoaded){
+		if(isDeviceLoaded){
 			const saveRegisteredDevices = async () => {
 				const deviceStore = await load('devices.json', { autoSave: true });
 				await deviceStore.set("devices", registeredDevices);
