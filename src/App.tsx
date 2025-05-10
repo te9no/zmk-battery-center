@@ -36,6 +36,8 @@ enum State {
 const IS_DEV = process.env.NODE_ENV === 'development';
 
 function App() {
+	console.log('[App] Application started'); // デバッグログ
+
 	// デバッグモードの切り替え
 	const [isDebugMode, setIsDebugMode] = useState(false);
 	// 登録済みデバイス

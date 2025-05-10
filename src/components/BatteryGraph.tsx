@@ -6,6 +6,8 @@ const BatteryGraph: React.FC = () => {
     const logger = BatteryLogger.getInstance();
     const logs = logger.getLogs();
 
+    console.log('[BatteryGraph] Retrieved logs:', logs); // デバッグログ
+
     const data = {
         labels: logs.map(log => new Date(log.timestamp).toLocaleTimeString()),
         datasets: [
@@ -18,6 +20,8 @@ const BatteryGraph: React.FC = () => {
             },
         ],
     };
+
+    console.log('[BatteryGraph] Chart data:', data); // デバッグログ
 
     return <Line data={data} />;
 };
