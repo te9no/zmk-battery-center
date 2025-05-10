@@ -1,12 +1,13 @@
 import React from 'react';
 import { Line } from 'react-chartjs-2';
 import { BatteryLogger } from '../batteryLogger';
+import { logger } from '../utils/log';
 
 const BatteryGraph: React.FC = () => {
-    const logger = BatteryLogger.getInstance();
-    const logs = logger.getLogs();
+    const loggerInstance = BatteryLogger.getInstance();
+    const logs = loggerInstance.getLogs();
 
-    console.log('[BatteryGraph] Retrieved logs:', logs); // デバッグログ
+    logger.info('[BatteryGraph] Retrieved logs:', logs); // デバッグログ
 
     const data = {
         labels: logs.map(log => new Date(log.timestamp).toLocaleTimeString()),
@@ -21,9 +22,14 @@ const BatteryGraph: React.FC = () => {
         ],
     };
 
-    console.log('[BatteryGraph] Chart data:', data); // デバッグログ
+    logger.info('[BatteryGraph] Chart data prepared:', data); // デバッグログ
 
-    return <Line data={data} />;
+    return (
+        <div>
+            <h2>Battery Level Over Time</h2>
+            <Line data={data} />
+        </div>
+    );
 };
 
 export default BatteryGraph;

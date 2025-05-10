@@ -1,29 +1,37 @@
-import { warn, debug, trace, info, error } from '@tauri-apps/plugin-log';
+import fs from 'fs';
+import path from 'path';
 
+const LOG_FILE = path.join(process.cwd(), 'app.log');
 
-export class Logger {
-	warn = warn;
-	debug = debug;
-	trace = trace;
-	info = info;
-	error = error;
-}
+// ログファイルを初期化
+fs.writeFileSync(LOG_FILE, ''); // 起動時にログファイルをクリア
 
-export const logger = new Logger();
-
-function forwardConsole(
-	fnName: 'log' | 'debug' | 'info' | 'warn' | 'error',
-	logger: (message: string) => Promise<void>
-) {
-	const original = console[fnName];
-	console[fnName] = (message) => {
-		original(message);
-		logger(message);
-	};
-}
-
-forwardConsole('log', trace);
-forwardConsole('debug', debug);
-forwardConsole('info', info);
-forwardConsole('warn', warn);
-forwardConsole('error', error);
+export const logger = {
+    info: (message: string, data?: any) => {
+        const logMessage = `[INFO] ${new Date().toISOString()} - ${message} ${data ? JSON.stringify(data) : ''}\n`;
+        try {
+            fs.appendFileSync(LOG_FILE, logMessage);
+        } catch (err) {
+            console.error(`[Logger Error] Failed to write log: ${err}`);
+        }
+        console.log(logMessage.trim());
+    },
+    error: (message: string, data?: any) => {
+        const logMessage = `[ERROR] ${new Date().toISOString()} - ${message} ${data ? JSON.stringify(data) : ''}\n`;
+        try {
+            fs.appendFileSync(LOG_FILE, logMessage);
+        } catch (err) {
+            console.error(`[Logger Error] Failed to write log: ${err}`);
+        }
+        console.error(logMessage.trim());
+    },
+    debug: (message: string, data?: any) => {
+        const logMessage = `[DEBUG] ${new Date().toISOString()} - ${message} ${data ? JSON.stringify(data) : ''}\n`;
+        try {
+            fs.appendFileSync(LOG_FILE, logMessage);
+        } catch (err) {
+            console.error(`[Logger Error] Failed to write log: ${err}`);
+        }
+        console.debug(logMessage.trim());
+    },
+};

@@ -36,7 +36,7 @@ enum State {
 const IS_DEV = process.env.NODE_ENV === 'development';
 
 function App() {
-	console.log('[App] Application started'); // デバッグログ
+	logger.info('[App] Application started'); // アプリ起動時のログ
 
 	// デバッグモードの切り替え
 	const [isDebugMode, setIsDebugMode] = useState(false);
@@ -48,12 +48,14 @@ function App() {
 	// デバッグモードの切り替え処理
 	const toggleDebugMode = () => {
 		setIsDebugMode(prev => {
+			const newMode = !prev;
+			logger.info(`[App] Debug mode toggled: ${newMode}`); // デバッグモード切り替え時のログ
 			if (!prev) {
 				setRegisteredDevices(mockRegisteredDevices);
 			} else {
 				setRegisteredDevices([]);
 			}
-			return !prev;
+			return newMode;
 		});
 	};
 
@@ -131,24 +133,30 @@ function App() {
 
 	// デバイス追加
 	const handleAddDevice = async (id: string) => {
-		if (!registeredDevices.some(d => d.id === id)) {
-			const device = devices.find(d => d.id === id);
-			if (!device) return;
-			setState(State.fetchingBatteryInfo);
-			const info = await getBatteryInfo(id);
-			const newDevice: RegisteredDevice = {
-				id: device.id,
-				name: device.name,
-				batteryInfos: Array.isArray(info) ? info : [info],
-				isDisconnected: false
-			};
-			setRegisteredDevices(prev => [...prev, newDevice]);
+		logger.info(`[App] Adding device with ID: ${id}`); // デバイス追加時のログ
+		try {
+			if (!registeredDevices.some(d => d.id === id)) {
+				const device = devices.find(d => d.id === id);
+				if (!device) return;
+				setState(State.fetchingBatteryInfo);
+				const info = await getBatteryInfo(id);
+				const newDevice: RegisteredDevice = {
+					id: device.id,
+					name: device.name,
+					batteryInfos: Array.isArray(info) ? info : [info],
+					isDisconnected: false
+				};
+				setRegisteredDevices(prev => [...prev, newDevice]);
+			}
+			handleCloseModal();
+		} catch (error) {
+			logger.error(`[App] Failed to add device: ${error}`);
 		}
-		handleCloseModal();
 	};
 
 	// バッテリー情報を更新する関数
 	const updateBatteryInfo = async (device: RegisteredDevice) => {
+		logger.info(`[App] Updating battery info for device: ${device.id}`); // バッテリー情報更新時のログ
 		const isDisconnectedPrev = device.isDisconnected;
 		const isLowBatteryPrev = mapIsLowBattery(device.batteryInfos);
 
@@ -181,7 +189,8 @@ function App() {
 				}
 
 				return;
-			} catch {
+			} catch (error) {
+				logger.error(`[App] Failed to update battery info for device ${device.id}: ${error}`);
 				attempts++;
 				if (attempts >= maxAttempts) {
 					setRegisteredDevices(prev => prev.map(d => d.id === device.id ? { ...d, isDisconnected: true } : d));

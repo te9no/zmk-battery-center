@@ -1,11 +1,13 @@
 import React from 'react';
 import { BatteryLogger } from '../batteryLogger';
+import { logger } from '../utils/log';
 
 const BatteryStats: React.FC = () => {
-    const logger = BatteryLogger.getInstance();
-    const logs = logger.getLogs();
+    const loggerInstance = BatteryLogger.getInstance();
+    const logs = loggerInstance.getLogs();
 
     if (logs.length < 2) {
+        logger.info('[BatteryStats] Not enough data to calculate statistics'); // デバッグログ
         return <p>統計情報を計算するには、十分なデータが必要です。</p>;
     }
 
@@ -17,6 +19,8 @@ const BatteryStats: React.FC = () => {
     });
 
     const avgConsumption = consumptionRates.reduce((a, b) => a + b, 0) / consumptionRates.length;
+
+    logger.info('[BatteryStats] Calculated average consumption rate:', avgConsumption); // デバッグログ
 
     return (
         <div>
