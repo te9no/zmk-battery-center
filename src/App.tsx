@@ -14,7 +14,6 @@ import SettingsScreen from "@/components/SettingsScreen";
 import { sendNotification } from "./utils/notificaion";
 import { NotificationType } from "./utils/config";
 import { sleep } from "./utils/common";
-import BatteryGraph from './components/BatteryGraph';
 import BatteryStats from './components/BatteryStats';
 
 export type RegisteredDevice = {
@@ -374,8 +373,7 @@ function App() {
 								registeredDevices={registeredDevices}
 								setRegisteredDevices={setRegisteredDevices}
 							 />
-							<h1>バッテリー残量の推移</h1>
-							<BatteryGraph />
+							<h1>統計情報</h1>
 							<BatteryStats />
 						</main>
 					)}

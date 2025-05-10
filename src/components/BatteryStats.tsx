@@ -24,7 +24,7 @@ const BatteryStats: React.FC = () => {
 
     return (
         <div>
-            <h3>統計情報</h3>
+            <h3>時間当たりの消費量</h3>
             <p>平均消費率: {avgConsumption.toFixed(2)} %/h</p>
         </div>
     );
