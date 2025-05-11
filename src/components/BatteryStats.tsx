@@ -30,7 +30,7 @@ const BatteryStats: React.FC = () => {
 
     // 残り時間を推定
     const currentBatteryLevel = logs[logs.length - 1].batteryLevel;
-    const estimatedTimeLeft = currentBatteryLevel / avgConsumption; // 時間
+    const estimatedTimeLeft = avgConsumption > 0 ? currentBatteryLevel / avgConsumption : Infinity; // 消費率が0の場合を考慮
 
     logger.info('[BatteryStats] Calculated average consumption rate:', avgConsumption); // デバッグログ
     logger.info('[BatteryStats] Estimated time left:', estimatedTimeLeft); // デバッグログ
