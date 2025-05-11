@@ -1,11 +1,17 @@
 import React from 'react';
-import { BatteryLogger } from '../batteryLogger';
+import { BatteryLogger } from '../batteryLogger'; // ../batteryLogger のパスを確認してください
 import { logger } from '../utils/log';
 import { Line } from 'react-chartjs-2'; // グラフ描画用ライブラリをインポート
 
+// ログデータの型定義を追加
+interface LogEntry {
+    timestamp: number; // タイムスタンプ (ミリ秒)
+    batteryLevel: number; // バッテリー残量 (%)
+}
+
 const BatteryStats: React.FC = () => {
     const loggerInstance = BatteryLogger.getInstance();
-    const logs = loggerInstance.getLogs();
+    const logs: LogEntry[] = loggerInstance.getLogs(); // 型を明確に指定
 
     if (logs.length < 2) {
         logger.info('[BatteryStats] Not enough data to calculate statistics'); // デバッグログ
@@ -13,14 +19,14 @@ const BatteryStats: React.FC = () => {
     }
 
     // バッテリー消費率を計算
-    const consumptionRates = logs.slice(1).map((log, index) => {
+    const consumptionRates = logs.slice(1).map((log: LogEntry, index: number) => {
         const prevLog = logs[index];
         const timeDiff = (log.timestamp - prevLog.timestamp) / 3600000; // 時間に変換
         const levelDiff = prevLog.batteryLevel - log.batteryLevel;
         return levelDiff / timeDiff; // 消費率 (%/h)
     });
 
-    const avgConsumption = consumptionRates.reduce((a, b) => a + b, 0) / consumptionRates.length;
+    const avgConsumption = consumptionRates.reduce((a: number, b: number) => a + b, 0) / consumptionRates.length;
 
     // 残り時間を推定
     const currentBatteryLevel = logs[logs.length - 1].batteryLevel;
@@ -31,11 +37,11 @@ const BatteryStats: React.FC = () => {
 
     // バッテリー残量の推移データを準備
     const chartData = {
-        labels: logs.map(log => new Date(log.timestamp).toLocaleTimeString()), // タイムスタンプをラベルに
+        labels: logs.map((log: LogEntry) => new Date(log.timestamp).toLocaleTimeString()), // タイムスタンプをラベルに
         datasets: [
             {
                 label: 'バッテリー残量 (%)',
-                data: logs.map(log => log.batteryLevel),
+                data: logs.map((log: LogEntry) => log.batteryLevel),
                 borderColor: 'rgba(75, 192, 192, 1)',
                 backgroundColor: 'rgba(75, 192, 192, 0.2)',
                 fill: true,
