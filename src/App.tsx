@@ -14,6 +14,7 @@ import SettingsScreen from "@/components/SettingsScreen";
 import { sendNotification } from "./utils/notificaion";
 import { NotificationType } from "./utils/config";
 import { sleep } from "./utils/common";
+import BatteryStats from './components/BatteryStats';
 
 export type RegisteredDevice = {
 	id: string;
@@ -360,7 +361,9 @@ function App() {
 							<RegisteredDevicesPanel
 								registeredDevices={registeredDevices}
 								setRegisteredDevices={setRegisteredDevices}
-							/>
+								/>
+							<h1>統計情報</h1>
+							<BatteryStats /> {/* 残時間当たりの消費量を表示 */}
 						</main>
 					)}
 
